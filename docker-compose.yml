@@ -4,7 +4,32 @@ services:
     build:
       context: ./components/CodeRx/
       dockerfile: ./coderx.Dockerfile
-    ports:
-     - "80:5000"
+    expose:
+     - "5000"
+
   redis:
     image: "redis:alpine"
+
+  db:
+    image: postgres:11.2-alpine
+    restart: always
+    # ports:
+    #   - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: CodeRxYourDailyDoseOfCode
+    volumes:
+      - "dbdata:/var/lib/postgresql/data"
+
+  nginx:
+    depends_on:
+        - web
+    image: nginx:alpine
+    volumes:
+      - ./components/proxy/nginx.conf:/etc/nginx/nginx.conf
+    restart: always
+    ports:
+     - "80:80"
+
+volumes:
+  dbdata:
+    external: true
