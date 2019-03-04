@@ -1,4 +1,4 @@
-FROM python:3.7-alpine
+FROM python:3.7
 
 #Create code/CodeRx directory
 RUN mkdir -p /code/CodeRx
@@ -19,13 +19,13 @@ RUN pip install -r requirements.txt
 COPY start.sh /code/start.sh
 
 #Make start script executable
-RUN chmod a+x ./start.sh
+RUN chmod a+x /code/start.sh
 
 #Set start command
-CMD ["sh", "start.sh"]
+CMD ["/code/start.sh"]
 
 #Set flask application environment variable
-ENV FLASK_APP app.py
+ENV FLASK_APP CodeRx:app
 
 #add the rest of the files
 ADD . /code/CodeRx

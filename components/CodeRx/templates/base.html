@@ -5,9 +5,15 @@
 <link rel="shortcut icon" href="/static/favicon.ico">
 {% endblock %}
 
-{% block styles %}
+{%block scripts%}
 {{super()}}
+    <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+{% endblock %}
+
+{% block styles %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/_bootswatch.scss') }}"> -->
+<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/_variables.scss') }}"> -->
 {% endblock %}
 
 {% block title %}
@@ -19,12 +25,10 @@ Welcome to CodeRx
 {% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-md navbar-light bg-light">
     <a class="navbar-brand" href="{{ url_for('index') }}">
-        <div>
-            <img src="/static/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
-            CodeRx
-        </div>
+        <img src="/static/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+        CodeRx
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor03" aria-controls="navbarColor03"
         aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +40,7 @@ Welcome to CodeRx
             <li class="nav-item active">
                 <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
             </li>
-            <!-- <li class="nav-item">
+            <li class="nav-item">
               <a class="nav-link" href="#">Features</a>
             </li>
             <li class="nav-item">
@@ -44,7 +48,7 @@ Welcome to CodeRx
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">About</a>
-            </li> -->
+            </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="text" placeholder="Search">
