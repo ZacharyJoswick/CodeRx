@@ -27,8 +27,11 @@ def favicon():
 @app.route('/')
 def index():
     count = get_hit_count()
-    # return 'Hello World! I have been seen {} times.\n'.format(count)
     return render_template('index.html', title='Home', count=count)
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+@app.route('/editor')
+def editor():
+    return render_template('editor.html', title='Editor')
+
+# if __name__ == "__main__":
+#     app.run(host="0.0.0.0", debug=True)
