@@ -9,7 +9,7 @@ services:
     environment: 
       - FLASK_DEBUG=1
     volumes:
-      - "~/CodeRx/components/CodeRx:/code/CodeRx"
+      - "./components/CodeRx:/code/CodeRx"
 
   redis:
     image: "redis:alpine"
