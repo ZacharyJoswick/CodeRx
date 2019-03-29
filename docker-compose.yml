@@ -21,6 +21,7 @@ services:
     #   - "5432:5432"
     environment:
       POSTGRES_PASSWORD: CodeRxYourDailyDoseOfCode
+      #Password is for development use only, will use docker secrets going forward
     volumes:
       - "dbdata:/var/lib/postgresql/data"
 
