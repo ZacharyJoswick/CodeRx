@@ -12,8 +12,6 @@
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/_bootswatch.scss') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/_variables.scss') }}">
 {% endblock %}
 
 {% block title %}
@@ -50,10 +48,10 @@ Welcome to CodeRx
               <a class="nav-link" href="#">About</a>
             </li> -->
         </ul>
-        <form class="form-inline my-2 my-lg-0">
+        <!-- <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="text" placeholder="Search">
             <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-        </form>
+        </form> -->
     </div>
 </nav>
 {% endblock %}

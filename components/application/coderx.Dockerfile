@@ -1,7 +1,7 @@
 FROM python:3.7
 
-#Create code/CodeRx directory
-RUN mkdir -p /code/CodeRx
+#Create code directory
+RUN mkdir -p /code
 
 #Set the working directory to /code
 WORKDIR /code
@@ -11,12 +11,10 @@ RUN export PYTHONPATH="${PYTHONPATH}:/code"
 
 #Copy in requirements and start 
 #This speeds up build time later as we are not modifying these files often
-COPY requirements.txt /code/
+COPY requirements.txt start.sh run.py /code/
 
 #Install requirements
 RUN pip install -r requirements.txt
-
-COPY start.sh /code/start.sh
 
 #Make start script executable
 RUN chmod a+x /code/start.sh
@@ -28,7 +26,7 @@ CMD ["/code/start.sh"]
 ENV FLASK_APP CodeRx:app
 
 #add the rest of the files
-ADD . /code/CodeRx
+COPY ./CodeRx /code/CodeRx
 
 
 

@@ -1,0 +1,8 @@
+flask
+flask_bootstrap
+flask-socketio
+eventlet
+#gevent
+#gevent-websocket
+redis
+gunicorn

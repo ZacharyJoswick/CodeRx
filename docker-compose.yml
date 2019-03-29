@@ -2,14 +2,14 @@ version: '3.7'
 services:
   web:
     build:
-      context: ./components/CodeRx/
+      context: ./components/application/
       dockerfile: ./coderx.Dockerfile
     expose:
      - "5000"
     environment: 
       - FLASK_DEBUG=1
     volumes:
-      - "./components/CodeRx:/code/CodeRx"
+      - "./components/application/CodeRx:/code/CodeRx"
 
   redis:
     image: "redis:alpine"
