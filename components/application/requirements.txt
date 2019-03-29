@@ -3,6 +3,7 @@ flask_bootstrap
 flask-socketio
 Flask-SQLAlchemy
 flask-migrate
+psycopg2-binary
 eventlet
 redis
 gunicorn
