@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+<h1>Hello user</h1>
+
+<div id="container" style="width:50vw;height:80vh;border:1px solid grey"></div>
+
+<script src="{{ url_for('static', filename='node_modules/monaco-editor/min/vs/loader.js')}}"></script>
+<script>
+    require.config({
+        paths: {
+            'vs': "{{ url_for('static', filename='node_modules/monaco-editor/min/vs')}}"
+        }
+    });
+
+    require(['vs/editor/editor.main'], function () {
+        console.log("loading");
+        var editor = monaco.editor.create(document.getElementById("container"), {
+            value: 'public class HelloWorld { \n\n    public static void main(String[] args) { \n\t// Prints Hello, World to the terminal window.\n\t  System.out.println("Hello, World");\n    }\n\n}',
+            language: "java",
+            readOnly: false,
+            theme: "vs-dark",
+            lineNumbers: "on"
+        });
+    });
+</script>
+{% endblock %}

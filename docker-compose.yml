@@ -2,14 +2,14 @@ version: '3.7'
 services:
   web:
     build:
-      context: ./components/CodeRx/
+      context: ./components/application/
       dockerfile: ./coderx.Dockerfile
     expose:
      - "5000"
     environment: 
       - FLASK_DEBUG=1
     volumes:
-      - "~/CodeRx/components/CodeRx:/code/CodeRx"
+      - "./components/application/CodeRx:/code/CodeRx"
 
   redis:
     image: "redis:alpine"
@@ -17,10 +17,11 @@ services:
   db:
     image: postgres:11.2-alpine
     restart: always
-    # ports:
-    #   - "5432:5432"
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: CodeRxYourDailyDoseOfCode
+      #Password is for development use only, will use docker secrets going forward
     volumes:
       - "dbdata:/var/lib/postgresql/data"
 

@@ -1,6 +1,0 @@
-flask
-flask_bootstrap
-
-
-redis
-gunicorn
