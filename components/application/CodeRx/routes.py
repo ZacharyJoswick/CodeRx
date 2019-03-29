@@ -19,3 +19,7 @@ def index():
 @app.route('/editor')
 def editor():
     return render_template('editor.html', title='Editor')
+
+@app.route('/login')
+def login():
+    return render_template('login.html', title='Editor')

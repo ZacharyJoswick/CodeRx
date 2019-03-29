@@ -1,8 +1,8 @@
 flask
 flask_bootstrap
 flask-socketio
+Flask-SQLAlchemy
+flask-migrate
 eventlet
-#gevent
-#gevent-websocket
 redis
 gunicorn

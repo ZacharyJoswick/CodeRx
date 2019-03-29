@@ -11,7 +11,7 @@ RUN export PYTHONPATH="${PYTHONPATH}:/code"
 
 #Copy in requirements and start 
 #This speeds up build time later as we are not modifying these files often
-COPY requirements.txt start.sh run.py /code/
+COPY requirements.txt start.sh /code/
 
 #Install requirements
 RUN pip install -r requirements.txt
