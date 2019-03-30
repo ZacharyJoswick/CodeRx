@@ -7,7 +7,7 @@ services:
     expose:
      - "5000"
     environment: 
-      - FLASK_DEBUG=1
+      - FLASK_DEBUG=0
     volumes:
       - "./components/application/CodeRx:/code/CodeRx"
 
@@ -26,9 +26,12 @@ services:
       - "dbdata:/var/lib/postgresql/data"
 
   nginx:
+    build:
+      context: ./components/
+      dockerfile: ./proxy/nginx.Dockerfile
     depends_on:
         - web
-    image: nginx:alpine
+    # image: nginx:alpine
     volumes:
       - ./components/proxy/nginx.conf:/etc/nginx/nginx.conf
     # restart: always
