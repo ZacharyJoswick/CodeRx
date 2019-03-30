@@ -9,5 +9,5 @@ then
     gunicorn --worker-class eventlet --reload -w 4 -b :5000 CodeRx:app 
 else
     echo "Running In Production Configuration"
-    gunicorn --worker-class eventlet --reload -w 4 -b :5000 CodeRx:app 
+    gunicorn --worker-class eventlet --no-sendfile -w 4 -b :5000 CodeRx:app 
 fi

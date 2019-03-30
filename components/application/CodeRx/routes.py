@@ -22,4 +22,4 @@ def editor():
 
 @app.route('/login')
 def login():
-    return render_template('login.html', title='Editor')
+    return render_template('login.html', title='Login')
