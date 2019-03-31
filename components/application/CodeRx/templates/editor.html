@@ -8,6 +8,7 @@
 
 <script src="{{ url_for('static', filename='node_modules/monaco-editor/min/vs/loader.js')}}"></script>
 <script>
+    var editor;
     require.config({
         paths: {
             'vs': "{{ url_for('static', filename='node_modules/monaco-editor/min/vs')}}"
@@ -16,7 +17,7 @@
 
     require(['vs/editor/editor.main'], function () {
         console.log("loading");
-        var editor = monaco.editor.create(document.getElementById("container"), {
+        editor = monaco.editor.create(document.getElementById("container"), {
             value: 'public class HelloWorld { \n\n    public static void main(String[] args) { \n\t// Prints Hello, World to the terminal window.\n\t  System.out.println("Hello, World");\n    }\n\n}',
             language: "java",
             readOnly: false,
