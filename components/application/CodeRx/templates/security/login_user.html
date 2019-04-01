@@ -1,4 +1,5 @@
 {% extends "base_minimal.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
 {% from "security/_macros.html" import render_field_with_errors, render_field %}
 
 {% block content %}
@@ -8,7 +9,7 @@
 <div class="container">
     <div class="d-flex justify-content-center h-100">
       <div class="card">
-        <div class="card-header">
+        <div class="card-header justify-content-center text-center">
           <h3>{{ _('Login') }}</h3>
           <div class="d-flex justify-content-end social_icon">
             <span><i class="fab fa-facebook-square"></i></span>
@@ -16,33 +17,32 @@
             <span><i class="fab fa-twitter-square"></i></span>
           </div>
         </div>
-        <div class="card-body">
-          <form>
-            <div class="input-group form-group">
-              
-              {{ render_field_with_errors(login_user_form.email,  class="form-control", placeholder="email") }}
-              
-            </div>
-            <div class="input-group form-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fas fa-key"></i></span>
+        <div class="card-body justify-content-center">
+          <div class="row justify-content-center">
+              <div class="col col-md-12 justify-content-center text-center">
+                <form>
+                  <div class="input-group form-group ">
+                      {{  wtf.form_errors(login_user_form, hiddens="only") }}
+                  </div>
+                  <div class="input-group form-group justify-content-center", style="font-size:20px">
+                    {{ wtf.form_field(login_user_form.email,  class="form-control input-lg", placeholder="email", style="font-size:16px") }}
+                  </div>
+                  <div class="input-group form-group justify-content-center", style="font-size:20px">
+                    {{ wtf.form_field(login_user_form.password,  class="form-control", placeholder="password", style="font-size:16px") }}
+                  </div>
+                  <div class="input-group form-group justify-content-center", style="font-size:20px">
+                    {{ wtf.form_field(login_user_form.remember,  class="form-control") }}
+                  </div>
+                  <div class="form-group">
+                    {{ wtf.form_field(login_user_form.submit, class="btn login_btn btn-block", style="font-size:20px", value="Login") }}
+                  </div>
+                </form>
               </div>
-              {{ render_field_with_errors(login_user_form.password,  class="form-control", placeholder="password") }}
-            </div>
-            <div class="row align-items-center remember">
-              {{ render_field_with_errors(login_user_form.remember,  class="form-control") }}
-            </div>
-            <div class="form-group">
-              {{ render_field(login_user_form.submit, class="btn float-right login_btn", value="Login") }}
-            </div>
-          </form>
+          </div>
         </div>
         <div class="card-footer">
           <div class="d-flex justify-content-center links">
-            Don't have an account?<a href="#">Sign Up</a>
-          </div>
-          <div class="d-flex justify-content-center">
-            <a href="#">Forgot your password?</a>
+            Don't have an account?<a href="/register">Sign Up</a>
           </div>
         </div>
       </div>
