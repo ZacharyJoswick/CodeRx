@@ -13,8 +13,14 @@ class Config(object):
     SECURITY_REGISTERABLE = True
     SECURITY_CONFIRMABLE = True
     SECURITY_RECOVERABLE = True
+    SECURITY_CHANGEABLE = True
     SECURITY_PASSWORD_HASH = 'bcrypt'
     SECURITY_PASSWORD_SALT = os.environ.get('PASSWORD_SALT') or "a_very_salty_salt"
+    
+    SECURITY_POST_LOGIN_VIEW = "/homepage"
+    SECURITY_CONFIRM_ERROR_VIEW = "/confirm"
+    SECURITY_POST_CONFIRM_VIEW = "/homepage"
+    SECURITY_UNAUTHORIZED_VIEW = "/403"
 
     SECURITY_EMAIL_SENDER = 'admin@coderx.io'
     MAIL_SERVER = 'mail.privateemail.com'

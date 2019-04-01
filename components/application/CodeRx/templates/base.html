@@ -12,6 +12,7 @@
 
 {% block styles %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 {% endblock %}
 
 {% block title %}
@@ -24,7 +25,7 @@ Welcome to CodeRx
 
 {% block navbar %}
 <nav class="navbar navbar-expand-md navbar-light bg-light">
-    <a class="navbar-brand" href="{{ url_for('index') }}">
+    <a class="navbar-brand" href="{{ url_for('homepage') }}">
         <img src="/static/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
         CodeRx
     </a>
@@ -36,7 +37,7 @@ Welcome to CodeRx
     <div class="collapse navbar-collapse" id="navbarColor03">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="{{ url_for('homepage') }}">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('editor') }}">Editor</a>
@@ -48,10 +49,12 @@ Welcome to CodeRx
               <a class="nav-link" href="#">About</a>
             </li> -->
         </ul>
-        <!-- <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search">
-            <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-        </form> -->
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+            
     </div>
 </nav>
 {% endblock %}
