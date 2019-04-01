@@ -1,0 +1,38 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block head %}
+{{super()}}
+<link rel="shortcut icon" href="/static/favicon.ico">
+{% endblock %}
+
+{%block scripts%}
+{{super()}}
+    <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+{% endblock %}
+
+{% block title %}
+{% if title %}
+{{ title }} - CodeRx
+{% else %}
+Welcome to CodeRx
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {# application content needs to be provided in the app_content block #}
+    {% block app_content %}{% endblock %}
+</div>
+{% endblock %}

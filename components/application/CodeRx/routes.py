@@ -3,9 +3,9 @@ import os
 
 import redis
 from flask import url_for, send_from_directory, render_template
+from flask_security import login_required
 
 from CodeRx import app
-
 
 @app.route('/favicon.ico')
 def favicon():
@@ -17,6 +17,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/editor')
+@login_required
 def editor():
     return render_template('editor.html', title='Editor')
 

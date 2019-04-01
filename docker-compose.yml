@@ -1,5 +1,7 @@
 version: '3.7'
 services:
+
+  #Main web service
   web:
     build:
       context: ./components/application/
@@ -7,24 +9,39 @@ services:
     expose:
      - "5000"
     environment: 
-      - FLASK_DEBUG=0
+      FLASK_DEBUG: 1
+      PASSWORD_SALT: ${PASSWORD_SALT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_PORT: ${MAIL_PORT}
+      DATABASE_URL: ${DATABASE_URL}
     volumes:
       - "./components/application/CodeRx:/code/CodeRx"
+    networks:
+      - default
 
+  #In memory datastore for high speed access
   redis:
     image: "redis:alpine"
+    networks:
+      - default
 
+
+  #Postgres database used for all persistent data
   db:
     image: postgres:11.2-alpine
     restart: always
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: CodeRxYourDailyDoseOfCode
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       #Password is for development use only, will use docker secrets going forward
     volumes:
       - "dbdata:/var/lib/postgresql/data"
+    networks:
+      - default
 
+  #Frontend proxy, handles security and access to backend services
   nginx:
     build:
       context: ./components/
@@ -37,6 +54,9 @@ services:
     # restart: always
     ports:
      - "80:80"
+     - "443:443"
+    networks:
+      - default
 
 volumes:
   dbdata:
