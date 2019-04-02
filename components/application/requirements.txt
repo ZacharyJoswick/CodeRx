@@ -3,7 +3,9 @@ flask_bootstrap
 flask-socketio
 Flask-SQLAlchemy
 flask-migrate
+flask-security
 psycopg2-binary
+bcrypt
 eventlet
 redis
 gunicorn
