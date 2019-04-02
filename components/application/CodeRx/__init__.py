@@ -13,6 +13,8 @@ from flask_mail import Mail
 
 
 from CodeRx.config import Config
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -48,6 +50,3 @@ def user_registered_sighandler(app, user, confirm_token):
     db.session.commit()
 
 from CodeRx import routes
-
-
-

@@ -26,13 +26,12 @@ services:
     networks:
       - default
 
-
   #Postgres database used for all persistent data
   db:
     image: postgres:11.2-alpine
     restart: always
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       #Password is for development use only, will use docker secrets going forward
