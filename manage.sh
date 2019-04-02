@@ -94,6 +94,12 @@ case "$1" in
         cecho "GREEN" "migrating and updating database"
         docker run -it /bin/bash -c "flask db migrate -d ./CodeRx/migrations && flask db upgrade -d ./CodeRx/migrations"
     ;;
+    "r")
+        cecho "GREEN" "restarting probably because you fucked something up"
+        docker-compose down
+        docker-compose build
+        docker-compose up -d
+    ;;
     *)
         cecho "RED" "Error, Command $1 unrecognized"
         echo
