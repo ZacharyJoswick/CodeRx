@@ -30,7 +30,7 @@ def homepage():
     return render_template('homepage.html', title='Homepage')
 
 @app.route('/class_management')
-@roles_required(['admin', 'professor'])
+# @roles_required('admin')
 @login_required
 def class_management():
     return render_template('class_management.html', title='Class Management')
