@@ -56,6 +56,10 @@ def single_problem():
 def user_submissions():
     return render_template('view_user_submissions.html', title='All User Submissions')
 
+@app.route('/terminal')
+def terminal():
+    return render_template('terminal.html')
+
 @app.route('/403')
 def error_403():
     return render_template('errors/403.html')

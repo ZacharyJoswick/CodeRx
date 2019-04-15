@@ -9,6 +9,7 @@
     <div class="row">
         <div class="col-lg-8">
             <div id="container" style="width:65vw;height:75vh;border:1px solid grey"></div>
+            <button type="button" id="generate" class="btn btn-primary btn-lg btn-block">Generate Output Line</button>
         </div>
         <div class="col-lg-4">
             <div class="row mb-3">
@@ -62,9 +63,46 @@
     </div>
 </div>
 
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='node_modules/monaco-editor/min/vs/loader.js')}}"></script>
 <script>
+    // Borrowed from: http://tomeko.net/online_tools/cpp_text_escape.php?lang=en
+    function cstr_encode(input) {
+        var output = "\"";
+        var splitLines = false;
+        for (i = 0; i < input.length; i++) {
+            switch (input[i]) {
+                case '\f':
+                    output += "\\f";
+                    break;
+                case '\n':
+                    if (splitLines) {
+                        output += "\\n\"\n\"";
+                    } else {
+                        output += "\\n";
+                    }
+                    break;
+                case '\r':
+                    output += "\\r";
+                    break;
+                case '\t':
+                    output += "\\t";
+                    break;
+                case '\"':
+                    output += "\\\"";
+                    break;
+                case '\\':
+                    output += "\\\\";
+                    break;
+                default:
+                    output += input[i];
+                    break;
+            }
+        }
+        output += "\"";
+        return output;
+    }
+
     var editor;
     require.config({
         paths: {
@@ -82,5 +120,11 @@
             lineNumbers: "on"
         });
     });
+
+    $('#generate').on('click', function (e) {
+
+        console.log(cstr_encode(editor.getValue()));
+
+    })
 </script>
 {% endblock %}

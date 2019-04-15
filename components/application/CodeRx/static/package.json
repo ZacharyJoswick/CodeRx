@@ -9,6 +9,7 @@
   "author": "We Are #1",
   "license": "MIT",
   "dependencies": {
-    "monaco-editor": "^0.16.0"
+    "monaco-editor": "^0.16.0",
+    "xterm": "^3.12.0"
   }
 }
