@@ -32,7 +32,7 @@ mail = Mail(app)
 
 # Setup Flask-Security
 from CodeRx.models import User, Role, Problem, Submitted, files, testcase, test_case_results
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+user_datastore = SQLAlchemyUserDatastore(db, User, Role, Problem, Submitted, files, testcase, test_case_results)
 security = Security(app, user_datastore)
 
 @app.before_first_request
