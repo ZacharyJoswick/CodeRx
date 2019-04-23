@@ -47,6 +47,8 @@ services:
       dockerfile: ./proxy/nginx.Dockerfile
     depends_on:
         - web
+        - api
+    restart: on-failure
     # image: nginx:alpine
     volumes:
       - ./components/proxy/nginx.conf:/etc/nginx/nginx.conf
@@ -56,6 +58,41 @@ services:
      - "443:443"
     networks:
       - default
+
+  broker:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - 5672:5672 # port for the daemon API
+      - 15672:15672 # port for the RabbitMQ management interface
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:15672"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  api:
+    build:
+      context: ./components/RECESS/api
+      dockerfile: ./api.Dockerfile
+    command: python recess_api.py -p 5672 -s ${RABBIT_HOST_IP}
+    restart: on-failure
+    expose:
+     - "4520"
+    ports:
+     - "4520:4520"
+    depends_on: 
+      - broker
+
+  worker:
+    build:
+      context: ./components/RECESS/worker/java
+      dockerfile: ./java.Dockerfile
+    command: python worker.py -u ${RABBIT_HOST_IP}
+    restart: on-failure
+    depends_on: 
+      - broker
+
 
 volumes:
   dbdata:
