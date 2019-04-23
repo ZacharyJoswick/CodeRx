@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
-
+'''
 roles_probs = db.Table('roles_probs',
     db.Column('prob_id', db.Integer(), db.ForeignKey('prob_id')),
     db.Column('submitted_id', db.Integer(), db.ForeignKey('submitted_id'))
@@ -56,3 +56,4 @@ class test_case_results(db.Model, test_case_resultsMixin):
     id = db.Column(db.Integer, primary_key=True)
     testcase_id = db.Column(db.String(225))
     passs = db.Column(db.String(225))
+'''
