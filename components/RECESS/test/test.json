@@ -22,7 +22,7 @@
         }
     ],
     "language": "java",
-    "callback_address": "",
+    "callback_address": "http://web:5000/job_complete",
     "compile_timeout": 5,
     "run_timeout": 5,
     "other": {

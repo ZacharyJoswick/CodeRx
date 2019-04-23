@@ -84,15 +84,18 @@ services:
     depends_on: 
       - broker
 
-  worker:
+  # manager:
+  #   build:
+  #     context: 
+
+  worker1:
     build:
       context: ./components/RECESS/worker/java
       dockerfile: ./java.Dockerfile
     command: python worker.py -u ${RABBIT_HOST_IP}
-    restart: on-failure
+    restart: always
     depends_on: 
       - broker
-
 
 volumes:
   dbdata:

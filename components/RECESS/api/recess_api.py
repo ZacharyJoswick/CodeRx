@@ -4,6 +4,7 @@ import argparse
 import sys
 import uuid
 import threading
+import time
 from argparse import RawTextHelpFormatter
 from flask import Flask, jsonify, make_response, request, abort
 
@@ -22,6 +23,15 @@ class RpcClient(object):
         self.connection = pika.BlockingConnection(self.parameters)
         self.channel = self.connection.channel()
         result = self.channel.queue_declare(queue=self.rpc_queue, durable=True)
+        thread = threading.Thread(target=self._process_data_events)
+        thread.setDaemon(True)
+        thread.start()
+
+    def _process_data_events(self):
+        while True:
+            with self.internal_lock:
+                self.connection.process_data_events()
+                time.sleep(0.1)
 
     def send_request(self, payload, queue):
         corr_id = str(uuid.uuid4())
@@ -76,4 +86,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     rpc_client = RpcClient('task_queue', args.server, args.port)
-    app.run(threaded = False, port=4520, host='0.0.0.0')
+    app.run(threaded = True, port=4520, host='0.0.0.0')

@@ -2,7 +2,7 @@ import time
 import os
 
 import redis
-from flask import url_for, send_from_directory, render_template, redirect
+from flask import url_for, send_from_directory, render_template, redirect, request, make_response, jsonify
 from flask_security import login_required, current_user, roles_required
 
 from CodeRx import app
@@ -63,3 +63,8 @@ def terminal():
 @app.route('/403')
 def error_403():
     return render_template('errors/403.html')
+
+@app.route('/job_complete', methods=['POST'])
+def job_complete():
+    app.logger.info(request.json)
+    return make_response(jsonify({'result': 'job completed successfully'}), 200)
