@@ -27,7 +27,7 @@ def editor():
 @app.route('/homepage')
 @login_required
 def homepage():
-    return render_template('homepage.html', title='Homepage')
+    return render_template('homepage.html', title='Homepage', email=current_user.email, problem_list = problem_list)
 
 @app.route('/class_management')
 # @roles_required('admin')
