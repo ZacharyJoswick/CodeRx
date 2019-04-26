@@ -8,7 +8,7 @@ services:
       dockerfile: ./coderx.Dockerfile
     expose:
      - "5000"
-    environment: 
+    environment:
       FLASK_DEBUG: 1
       PASSWORD_SALT: ${PASSWORD_SALT}
       MAIL_USERNAME: ${MAIL_USERNAME}
@@ -19,6 +19,8 @@ services:
       - "./components/application/CodeRx:/code/CodeRx"
     networks:
       - default
+    depends_on:
+      - db
 
   #In memory datastore for high speed access
   redis:
