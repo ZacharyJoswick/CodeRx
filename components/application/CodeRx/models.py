@@ -39,17 +39,25 @@ class Problem(db.Model):
 class Submission(db.Model):
     __tablename__ = 'submission'
     id = db.Column(db.Integer, primary_key=True)
-    files = db.Column(db.String) 
+    files = db.Column(db.String)
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     test_case_results = db.relationship("Test_case_results")
+    files = db.relationship("Submission_File")
 
-class Files(db.Model):
-    __tablename__ = 'files'
+class Problem_Base_File(db.Model):
+    __tablename__ = 'problembasefile'
     id = db.Column(db.Integer, primary_key=True)
     file_name = db.Column(db.String)
     content = db.Column(db.String)
     problem_id = db.Column(db.Integer, db.ForeignKey("problem.id"))
+
+class Submission_File(db.Model):
+    __tablename__ = "submission_file"
+    id = db.Column(db.Integer, primary_key=True)
+    file_name = db.Column(db.String)
+    content = db.Column(db.String)
+    submission_id = db.Column(db.Integer, db.ForeignKey("submission.id"))
 
 class TestCase(db.Model):
     __tablename__ = 'testcase'
