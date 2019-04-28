@@ -73,6 +73,7 @@ class javaWorker:
     # Writes out the code to the specified file
     def write_code_to_file(self, code, filename):
         with open(filename, "w") as text_file:
+            self.logger.debug(f"Contents of file {filename} is {code}")
             text_file.write(code)
 
     # Compiles the specified file

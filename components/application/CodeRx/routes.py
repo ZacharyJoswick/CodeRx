@@ -1,11 +1,13 @@
 import time
 import os
+import json
+import requests
 
 import redis
 from flask import url_for, send_from_directory, render_template, redirect, request, make_response, jsonify
 from flask_security import login_required, current_user, roles_required
-
-from CodeRx import app
+from flask_socketio import emit, send
+from CodeRx import app, socketio
 
 @app.route('/favicon.ico')
 def favicon():
@@ -67,4 +69,23 @@ def error_403():
 @app.route('/job_complete', methods=['POST'])
 def job_complete():
     app.logger.info(request.json)
+    socketio.emit("problem_result",request.json["run"])
     return make_response(jsonify({'result': 'job completed successfully'}), 200)
+
+@socketio.on('new_problem_from_user')
+def test_message(message):
+    app.logger.info(message)
+
+    problem = {}
+
+    with open('./CodeRx/test.json') as json_file:  
+        problem = json.load(json_file)
+
+    problem["files"][0]["contents"] = message["data"]
+
+    r = requests.post(url="http://api:4520/api/1.0/new_job", json=problem, timeout=4)
+    app.logger.debug(f'Callback url resulted in a response code of: {r.status_code}')
+
+    # app.logger.info(problem["files"][0]["contents"])
+
+    # emit('my response', {'data': 'got it!'})  
