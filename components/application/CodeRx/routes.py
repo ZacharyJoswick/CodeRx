@@ -5,7 +5,8 @@ import redis
 from flask import url_for, send_from_directory, render_template, redirect
 from flask_security import login_required, current_user, roles_required
 
-from CodeRx import app
+from CodeRx import app, db
+from CodeRx.models import *
 
 @app.route('/favicon.ico')
 def favicon():
@@ -27,6 +28,13 @@ def editor():
 @app.route('/homepage')
 @login_required
 def homepage():
+    app.logger.info(f"Current User Information: {current_user.email}")
+    #User.query.filter_by(email=current_user.email)
+    # new_sumbission = Submission(files="A file")
+    # db.session.add(new_sumbission)
+    # db.session.commit()
+    #tmp = Submission.query.filter_by(id=1).first()
+    #app.logger.info(f"Query Result: {tmp.files}")
     return render_template('homepage.html', title='Homepage')
 
 @app.route('/class_management')
