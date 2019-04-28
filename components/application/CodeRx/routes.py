@@ -24,7 +24,8 @@ def index():
 @app.route('/editor')
 @login_required
 def editor():
-    return render_template('editor.html', title='Editor')
+    testCase = [{"input":"testvalue1"},{"input":"testvalue2"}]
+    return render_template('editor.html', title='Editor', TestCases = testCase)
 
 @app.route('/homepage')
 @login_required

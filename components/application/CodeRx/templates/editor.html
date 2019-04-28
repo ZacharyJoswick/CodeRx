@@ -3,7 +3,7 @@
 
 {% block app_content %}
 
-<h1>Problem #1</h1>
+<h3>Problem #1</h3>
 <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/xterm/dist/xterm.css')}}" /> 
 <script src="{{ url_for('static', filename='node_modules/xterm/dist/xterm.js')}}"></script>
 
@@ -31,10 +31,11 @@
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
                     et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
                     aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-                    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                    cillum dolore eu fugiat nulla pariatur. Esxcepteur sint occaecat cupidatat non proident, sunt in
                     culpa qui officia deserunt mollit anim id est laborum."
                 </div>
             </div>
+            <div id="displayResults" style="display: none; position: absolute; top: 0; right: 0;">
             <div class="row">
                 <div class="col-lg">
                     <table class="table table-dark table-bordered">
@@ -47,7 +48,23 @@
                                 <th scope="col"></th>
                             </tr>
                         </thead>
+                        
                         <tbody>
+                            {% for case in TestCases %}
+                            <tr>
+                                <th>scope = "row"> {{loop.index}}</th>
+                                <td id = "results_{{loop.index}}_1">{{case.input}}</td>
+
+                            {% endfor %}
+
+
+
+
+
+
+
+
+                        {#
                             <tr>
                                 <th scope="row">1</th>
                                 <td>HelloWorld(1,2) -> True</td>
@@ -69,15 +86,27 @@
                                 <td>X</td>
                                 <td style="background-color: red;"></td>
                             </tr>
+                            #}
                         </tbody>
                     </table>
                     <h3>Program output</h3>
                     <div id="terminal"></div>
                 </div>
             </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>function displayResults() {
+  var x = document.getElementById("displayResults");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+</script>
 
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
