@@ -1,0 +1,32 @@
+{
+    "files": [{
+        "filename": "HelloWorld.java",
+        "contents": "import java.util.Scanner; \npublic class HelloWorld { \n\n    public static void main(String[] args) { \n\t// Prints Hello, World to the terminal window.\n        Scanner in = new Scanner(System.in); \n        String s = in.nextLine(); \n        System.out.println(s); \n    }\n\n}"
+    }],
+    "run_file": "HelloWorld",
+    "tests": [{
+            "input": "Test String 1",
+            "expected_output": "Test String 1"
+        },
+        {
+            "input": "Test String 2",
+            "expected_output": "Test String 2"
+        },
+        {
+            "input": "Test String 3",
+            "expected_output": "Test String 3"
+        },
+        {
+            "input": "Test String 4",
+            "expected_output": "Test String 5"
+        }
+    ],
+    "language": "java",
+    "callback_address": "",
+    "compile_timeout": 5,
+    "run_timeout": 5,
+    "other": {
+        "user_id": 1,
+        "job_guid": "abcdefg"
+    }
+}
