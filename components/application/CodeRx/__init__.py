@@ -31,8 +31,7 @@ migrate = Migrate(app, db)
 mail = Mail(app)
 
 # Setup Flask-Security
-
-from CodeRx.models import User, Role, Problem, Submitted, files, testcase, test_case_results
+from CodeRx.models import User, Role
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 

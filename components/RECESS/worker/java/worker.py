@@ -73,6 +73,7 @@ class javaWorker:
     # Writes out the code to the specified file
     def write_code_to_file(self, code, filename):
         with open(filename, "w") as text_file:
+            self.logger.debug(f"Contents of file {filename} is {code}")
             text_file.write(code)
 
     # Compiles the specified file
@@ -148,7 +149,7 @@ class javaWorker:
                                 }
 
                     self.logger.debug(f'Sending response with message: {jobResponse} to address: {job["callback_address"]}')
-                    r = requests.post(url=job["callback_address"], data=jobResponse, timeout=0.5)
+                    r = requests.post(url=job["callback_address"], json=jobResponse, timeout=0.5)
                     self.logger.debug(f'Callback url resulted in a response code of: {r.status_code}')
                 else:
                     self.logger.warning("No callback address specified, not sending the message")
@@ -161,7 +162,7 @@ class javaWorker:
                 if job["callback_address"] != "":
                     jobResponse = {"error": errorMsg}
                     self.logger.debug(f'Sending response with message: {jobResponse} to address: {job["callback_address"]}')
-                    r = requests.post(url=job["callback_address"], data=jobResponse, timeout=0.5)
+                    r = requests.post(url=job["callback_address"], json=jobResponse, timeout=0.5)
                     self.logger.debug(f'Callback url resulted in a response code of: {r.status_code}')
                 else:
                     self.logger.warning("No callback address specified, not sending the message")
