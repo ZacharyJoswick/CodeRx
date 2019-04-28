@@ -78,24 +78,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/gcal.js"></script>
   -->
-    <link href="/static/daygrid/main.min.css" rel="stylesheet" />
-    <link href="/static/daygrid/daygrid.css" rel="stylesheet" />
+<link href="/static/daygrid/main.min.css" rel="stylesheet" />
+<link href="/static/daygrid/daygrid.css" rel="stylesheet" />
 
-    <script src="/static/daygrid/main.min.js"></script>
-    <script src="/static/daygrid/daygrid.js"></script>
-    <script>
+<script src="/static/daygrid/main.min.js"></script>
+<script src="/static/daygrid/daygrid.js"></script>
 
-      document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
+<script>
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          plugins: [ 'daygrid' ]
-        });
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
 
-        calendar.render();
-      });
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      plugins: [ 'daygrid' ]
+    });
 
-    </script>
+    calendar.render();
+  });
+
+</script>
 
 <script>function calendar() {
   var x = document.getElementById("calendar");
