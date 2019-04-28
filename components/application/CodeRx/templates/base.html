@@ -39,17 +39,26 @@ Welcome to CodeRx
             <li class="nav-item active">
                 <a class="nav-link" href="{{ url_for('homepage') }}">Home <span class="sr-only">(current)</span></a>
             </li>
+            {%- if request.path == "/editor" %}}
+            <button onclick="displayProblems()">Problems
+            </button>
+            {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('editor') }}">Editor</a>
+                <a class="nav-link" href="{{ url_for('editor') }}">Editor</a>
             </li>
-            <!-- <li class="nav-item">
+            {% endif %}
+            <!--
+            <li class="nav-item">
               <a class="nav-link" href="#">Pricing</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">About</a>
-            </li> -->
+            --> 
+
         </ul>
         <ul class="nav navbar-nav navbar-right">
+            {%- if request.path == "/editor" %}}
+            <button onclick="displayResults()">Results
+            </button>
+            {% endif %}
             <li>
                 <a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </li>

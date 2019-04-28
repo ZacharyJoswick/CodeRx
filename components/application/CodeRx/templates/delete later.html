@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+<head>
+<div class="d-flex justify-content-center h-100">
+	<h1>Welcome, </h1>
+</div>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.sidenav {
+  width: 200px;
+  position: fixed;
+  z-index: 1;
+  top: 65px;
+  left: 10px;
+  background: #eee;
+  overflow-x: hidden;
+  padding: 8px 0;
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #2196F3;
+  display: block;
+}
+</style>
+  <div class="row" justify-content-center>
+      <table width="80%" border="1">
+        <tbody>
+          <tr>
+			 <td>CoderRx Problems</td>
+            <td>(class name) Problems</td>
+            <td>Assigned</td>
+            <td>Calendar</td>
+          </tr>
+</tbody>
+	  </table>
+  </div>
+  <div class="row">
+    <table border="1">
+      <tbody>
+        <tr>
+          <td><div class="col-lg">
+            <table class="table table-dark table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">General Problems</th>
+                  <th scope="col">Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">1</th>
+                  <td>HelloWorld</td>
+                  <td style="background-color: red;">N/A</td>
+                </tr>
+                <tr>
+                  <th scope="row">2</th>
+                  <td>Money</td>
+                  <td style="background-color: red;">N/A</td>
+                </tr>
+                <tr>
+                  <th scope="row">3</th>
+                  <td>Minutes</td>
+                  <td style="background-color: red;">N/A</td>
+                </tr>
+                <tr>
+                  <th scope="row">4</th>
+                  <td>Vowel Count</td>
+                  <td style="background-color: red;">N/A</td>
+                </tr>
+              </tbody>
+            </table>
+          </div></td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</head>
+
+
+{% endblock %}

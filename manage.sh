@@ -95,7 +95,7 @@ case "$1" in
         docker run -it /bin/bash -c "flask db migrate -d ./CodeRx/migrations && flask db upgrade -d ./CodeRx/migrations"
     ;;
     "r")
-        cecho "GREEN" "restarting probably because you fucked something up"
+        cecho "GREEN" "restarting probably because you need to rebuild the database again. smh thanks jeff"
         docker-compose down
         docker-compose build
         docker-compose up -d

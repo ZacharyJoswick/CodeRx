@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
-
 {% block app_content %}
-<h1>Problem #1</h1>
 
-
+<h3>Problem #1</h3>
+  
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-8">
@@ -13,13 +12,15 @@
         <div class="col-lg-4">
             <div class="row mb-3">
                 <div class="col-lg" style="font-size: 16pt; color: white;">
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-                    et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                    aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-                    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                    culpa qui officia deserunt mollit anim id est laborum."
+                    "Problem description
+                    plus some details of 
+                    the problem
+                    also a link to java docs
+                    or tutorials"
                 </div>
             </div>
+            <div id="results" style="display:none">
+            <div class="results">
             <div class="row">
                 <div class="col-lg">
                     <table class="table table-dark table-bordered">
@@ -57,12 +58,69 @@
                         </tbody>
                     </table>
                 </div>
+              </div>
+              </div>
             </div>
         </div>
     </div>
 </div>
-
-
+<script>function displayResults() {
+  var x = document.getElementById("results");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+</script>
+<div id="problemsList" style="display:none">
+  <div class="sidenav">
+    <div class="row">
+        <div class="col-lg">
+            <table class="table table-dark table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Problem</th>
+                        <th scope="col">Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>HelloWorld</td>
+                        <td style="background-color: red;">N/A</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">2</th>
+                        <td>Money</td>
+                        <td style="background-color: red;">N/A</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">3</th>
+                        <td>Minutes</td>
+                        <td style="background-color: red;">N/A</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">4</th>
+                        <td>Vowel Count</td>
+                        <td style="background-color: red;">N/A</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+</div>
+<script>function displayProblems() {
+  var x = document.getElementById("problemsList");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+</script>
 <script src="{{ url_for('static', filename='node_modules/monaco-editor/min/vs/loader.js')}}"></script>
 <script>
     var editor;
@@ -83,4 +141,44 @@
         });
     });
 </script>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: "Lato", sans-serif;
+}
+
+.sidenav {
+  width: 200px;
+  position: fixed;
+  z-index: 1;
+  top: 65px;
+  left: 10px;
+  background: #eee;
+  overflow-x: hidden;
+  padding: 8px 0;
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #2196F3;
+  display: block;
+}
+
+.sidenav a:hover {
+  color: #064579;
+}
+.results a:hover {
+  color: #064579;
+}
+.main {
+  margin-left: 140px; /* Same width as the sidebar + left position in px */
+  font-size: 28px; /* Increased text to enable scrolling */
+  padding: 0px 10px;
+}
+</style>
+
 {% endblock %}

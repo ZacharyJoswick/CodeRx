@@ -6,7 +6,8 @@ from flask import url_for, send_from_directory, render_template, redirect
 from flask_security import login_required, current_user, roles_required
 
 from CodeRx import app
-
+from CodeRx import db
+user = current_user
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -27,7 +28,15 @@ def editor():
 @app.route('/homepage')
 @login_required
 def homepage():
-    return render_template('homepage.html', title='Homepage')
+    
+    problem_list = [],
+    '''problem_list.extend(current_user.problem.description),
+    for x in range(0, Problem.property.columns[0].type.length):
+        problem_list.append(Problem(x).description),
+    {% for element in Problem[1:] %} range(arrays[group_index][1] | length
+    problem_list += current_user.problem.descriptions
+    {% endfor %}'''
+    return render_template('homepage.html', title='Homepage', email=current_user.email, problem_list = problem_list)
 
 @app.route('/class_management')
 # @roles_required('admin')
@@ -59,3 +68,4 @@ def user_submissions():
 @app.route('/403')
 def error_403():
     return render_template('errors/403.html')
+
