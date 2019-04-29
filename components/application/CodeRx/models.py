@@ -26,6 +26,7 @@ class User(db.Model, UserMixin):
 class Problem(db.Model):
     __tablename__ = 'problem'
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
     description = db.Column(db.String)
     language = db.Column(db.String)
     allowmultiplefiles = db.Column(db.Boolean)

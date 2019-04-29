@@ -31,7 +31,7 @@ def editor_with_problem(problem_id):
     return render_template('editor.html', title='Editor',problem=temp_problem)
 
 @app.route('/new_problem', methods=['POST'])
-# @login_required
+@login_required
 def create_new_problem():
     if 'description' not in request.json.keys():
         return make_response(jsonify({'error': 'missing problem description'}), 400)
@@ -62,6 +62,17 @@ def homepage():
     #tmp = Submission.query.filter_by(id=1).first()
     #app.logger.info(f"Query Result: {tmp.files}")
     return render_template('homepage.html', title='Homepage')
+
+#displying problems on homepage
+#@app.route('/homepage/<int:user.id>')
+#@login_required
+#def homepage()
+#    p=problem.query.filter_by(id='user.id').all()
+#    problem=[]
+#    for problem in p.problem_id:
+#        problem.append({"id":problem.id,"name":problem.name})
+#    problem_id = {"id":p.id, "name":p.name}
+#    return render_template('homepage.html', title='Homepage')
 
 @app.route('/class_management')
 # @roles_required('admin')
