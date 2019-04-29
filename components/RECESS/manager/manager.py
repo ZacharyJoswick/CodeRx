@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import time
+from datetime import datetime, timedelta
 import docker
 import etcd3
 import threading
@@ -7,6 +8,7 @@ import argparse
 import logging
 import coloredlogs
 import signal
+import pysnooper
 
 class manager:
 
@@ -61,8 +63,10 @@ class manager:
 
     def startWorker(self, language):
         if language == "java":
-            self.client.containers.run(
+            self.logger.info("Starting java worker")
+            container = self.client.containers.run(
                 "coderx_worker", detach=True, auto_remove=True, network="coderx_default")
+            self.logger.info(f"Started worker with name: {container.name}")
         else:
             self.logger.info(f"Havent implemented {language} yet ;)")
 
@@ -91,7 +95,7 @@ class manager:
         if delta > 0:
             self.logger.info(f"Not enough workers, starting {delta}")
             for i in range(0,delta):
-                self.logger.info("Starting Worker")
+                # self.logger.info("Starting Worker")
                 self.startWorker("java")
 
     def spin(self):
@@ -106,21 +110,56 @@ class manager:
             target=self.handleEvents, name="dockerEvents")
         self.dockerEventThread.start()
 
+
+
+
+    # @pysnooper.snoop()
     def handleEvents(self):
-        self.logger.info("Listening for events")
-        events = self.client.events(decode=True)
-        for event in events:
-            # self.logger.info(event)
-            try:
-                if event['status'] == "die":
-                    self.logger.info(event)
-                    language = event['Actor']['Attributes']['language']
-                    self.logger.info(f"Event language: {language}")
-                    self.startWorker(language)
+        try:
+            # self.logger.info("Listening for events")
+            client = docker.from_env()
+            # self.logger.info("Got docker client")
+            events = client.events(decode=True)
+            # self.logger.info("Got events")
+            delta = timedelta(seconds=2)
+            # self.logger.info("Set Time delta")
+            since = datetime.utcnow() 
+            # self.logger.info("Set Since")
+            until = datetime.utcnow() + delta
+            # self.logger.info("Set until")
+            while True:
+                # self.logger.info("starting event loop")
+                for event in client.events(since=since, until=until, decode=True):
+                    if 'status' in event.keys():
+                        if event['status'] == "die":
+                            self.logger.info(f"die event: {event}")
+                            language = event['Actor']['Attributes']['language']
+                            self.logger.info(f"Restarting a worker with language: {language}")
+                            self.startWorker(language)
+                            self.logger.info("Back from start worker call")
+                # self.logger.info("stopping event loop")
+                since = until
+                until = datetime.utcnow() + delta
+        except Exception as e:
+            self.logger.error("Got exception")
+            self.logger.warning(str(e))
+            pass
+        
+
+        # for event in events:
+        #     self.logger.info(event)
+        #     # try:
+        #     if event['status'] == "die":
+        #         self.logger.info(event)
+        #         language = event['Actor']['Attributes']['language']
+        #         self.logger.info(f"Restarting a worker with language: {language}")
+        #         self.startWorker(language)
+        #         self.logger.info("Back from start worker call")
                     
-            except Exception as e:
-                self.logger.warn(f"Exception in handle events: {e}")
-                pass
+            # except Exception as e:
+            #     self.logger.warning(f"Exception in handle events: {e.message}")
+            #     pass
+        self.logger.warning("exiting event loop")
             
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Optional app description')

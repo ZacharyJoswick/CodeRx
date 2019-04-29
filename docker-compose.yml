@@ -45,7 +45,7 @@ services:
     image: quay.io/coreos/etcd:v3.1.20
     entrypoint: /usr/local/bin/etcd
     command:
-        - '--name=etcd-1'
+        - '--name=etcd'
         - '--initial-advertise-peer-urls=http://etcd:2380'
         - '--listen-peer-urls=http://etcd:2380'
         - '--listen-client-urls=http://etcd:2379,http://localhost:2379'
@@ -85,11 +85,6 @@ services:
     ports:
       - 5672:5672 # port for the daemon API
       - 15672:15672 # port for the RabbitMQ management interface
-    # healthcheck:
-    #     test: ["CMD", "curl", "-f", "http://localhost:15672"]
-    #     interval: 30s
-    #     timeout: 10s
-    #     retries: 5
 
   api:
     build:
@@ -112,17 +107,17 @@ services:
       - "./components/RECESS/manager:/manager"
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: on-failure
-    # command: gunicorn --worker-class gevent -w 4 -b :4582 manager:app
-
-  worker:
-    build:
-      context: ./components/RECESS/worker/java
-      dockerfile: ./java.Dockerfile
-    command: ls
-    #command: python worker.py -u broker
-    # restart: always
+    # command: python manager.py -l ERROR
     depends_on: 
-      - broker
+      - etcd
+
+  # worker:
+  #   build:
+  #     context: ./components/RECESS/worker/java
+  #     dockerfile: ./java.Dockerfile
+  #   command: ls
+  #   depends_on: 
+  #     - broker
 
 volumes:
   dbdata:

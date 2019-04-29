@@ -74,6 +74,8 @@ class javaWorker:
         # Start listening for new jobs
         self.channel.start_consuming()
 
+        self.logger.info("Stuff")
+
     def wait_for_rabbitmq(self):
         connected = False
         while not connected:
@@ -137,19 +139,19 @@ class javaWorker:
             self.logger.error(str(e))
             pass
 
-    def signal_manager_job_complete(self, job):
-        try:
-            # container id = basename "$(cat /proc/1/cpuset)"
-            result = subprocess.run(['basename $(cat /proc/1/cpuset)'],
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    # def signal_manager_job_complete(self, job):
+    #     try:
+    #         # container id = basename "$(cat /proc/1/cpuset)"
+    #         result = subprocess.run(['basename $(cat /proc/1/cpuset)'],
+    #                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
-            workerCompletedResponse = {
-                "language": self.language, "container_id": result.stdout.decode('utf-8').replace("\n", "")}
+    #         workerCompletedResponse = {
+    #             "language": self.language, "container_id": result.stdout.decode('utf-8').replace("\n", "")}
 
-            r = requests.post(url="http://" + self.managerURL + ":" + str(self.managerPort) + "/worker_completed",
-                            json=workerCompletedResponse, timeout=0.5)
-        except Exception as e:
-            self.logger.error(str(e))
+    #         r = requests.post(url="http://" + self.managerURL + ":" + str(self.managerPort) + "/worker_completed",
+    #                         json=workerCompletedResponse, timeout=0.5)
+    #     except Exception as e:
+    #         self.logger.error(str(e))
 
     # The callback that is executed when a new job is taken from the queue
     def callback(self, ch, method, properties, body):
@@ -214,7 +216,7 @@ class javaWorker:
 
                 ch.basic_ack(delivery_tag=method.delivery_tag)
 
-            self.signal_manager_job_complete(job)
+            # self.signal_manager_job_complete(job)
             self.connection.close()
             sys.exit()
 
