@@ -9,6 +9,9 @@ from flask_security import login_required, current_user, roles_required
 from flask_socketio import emit, send
 from CodeRx import app, socketio
 
+from CodeRx import app, db
+from CodeRx.models import *
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -21,6 +24,32 @@ def index():
     else:
         return render_template('index.html')
 
+@app.route('/editor/<int:problem_id>')
+@login_required
+def editor_with_problem(problem_id):
+    p=Problem.query.filter_by(id=problem_id).first()
+    test_cases=[]
+    for case in p.test_cases:
+        test_cases.append({"id":case.id,"input":case.input,"expected_output":case.expected_output})
+    temp_problem={"description":p.description,"language":p.language,"id":p.id,"test_cases":test_cases}
+    return render_template('editor.html', title='Editor',problem=temp_problem)
+
+@app.route('/new_problem', methods=['POST'])
+@login_required
+def create_new_problem():
+    if 'description' not in request.json.keys():
+        return make_response(jsonify({'error': 'missing problem description'}), 400)
+    if 'language' not in request.json.keys():
+        return make_response(jsonify({'error': 'missing problem language'}), 400)
+    if 'allowmultiplefiles' not in request.json.keys():
+        return make_response(jsonify({'error': 'missing allowmultiplefiles'}), 400)
+    if 'due_date' not in request.json.keys():
+        return make_response(jsonify({'error': 'missing due date'}), 400)
+    if 'test_cases' not in request.json.keys():
+        return make_response(jsonify({'error': 'missing test cases'}), 400)
+    app.logger.info(request.json)
+    return make_response(jsonify({'response': 'success'}), 200)
+
 @app.route('/editor')
 @login_required
 def editor():
@@ -29,7 +58,25 @@ def editor():
 @app.route('/homepage')
 @login_required
 def homepage():
-    return render_template('homepage.html', title='Homepage', email=current_user.email, problem_list = problem_list)
+    app.logger.info(f"Current User Information: {current_user.email}")
+    #User.query.filter_by(email=current_user.email)
+    # new_sumbission = Submission(files="A file")
+    # db.session.add(new_sumbission)
+    # db.session.commit()
+    #tmp = Submission.query.filter_by(id=1).first()
+    #app.logger.info(f"Query Result: {tmp.files}")
+    return render_template('homepage.html', title='Homepage')
+
+#displying problems on homepage
+#@app.route('/homepage/<int:user.id>')
+#@login_required
+#def homepage()
+#    p=problem.query.filter_by(id='user.id').all()
+#    problem=[]
+#    for problem in p.problem_id:
+#        problem.append({"id":problem.id,"name":problem.name})
+#    problem_id = {"id":p.id, "name":p.name}
+#    return render_template('homepage.html', title='Homepage')
 
 @app.route('/class_management')
 # @roles_required('admin')
