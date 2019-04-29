@@ -2,3 +2,5 @@ node_modules
 __pycache__
 .env
 .DS_Store
+components/proxy/nginx.conf
+docker-compose.yml
