@@ -34,7 +34,7 @@ class Problem(db.Model):
     due_date = db.Column(db.DateTime)
     submissions = db.relationship("Submission")
     test_cases = db.relationship("TestCase")
-    files = db.relationship("Files")
+    files = db.relationship("Problem_Base_File")
 
 class Submission(db.Model):
     __tablename__ = 'submission'
