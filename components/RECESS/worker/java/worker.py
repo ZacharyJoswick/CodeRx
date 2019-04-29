@@ -11,16 +11,18 @@ import requests
 from argparse import ArgumentParser
 
 # Main worker class. Handles all java compilation parts
+
+
 class javaWorker:
 
     # Initialization function.
     # All parameters are defaulted, but they can be customized
     # Intended to be customized by command line parameters
     def __init__(self,
-                 queueHost="localhost",
+                 queueHost="broker",
                  queuePort=5672,
                  queueName="java",
-                 managerURL="localhost",
+                 managerURL="manager",
                  managerPort=4582,
                  logLevel="DEBUG"
                  ):
@@ -30,6 +32,7 @@ class javaWorker:
         self.queueName = queueName
         self.managerURL = managerURL
         self.managerPort = managerPort
+        self.language = queueName
 
         self.initialSetup(logLevel)
         self.connectToQueue()
@@ -49,6 +52,7 @@ class javaWorker:
             f"Queue Host: {self.queueHost} Queue Port: {self.queuePort}")
 
         # Setup connection using queue host and port
+        self.wait_for_rabbitmq()
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(host=self.queueHost, port=self.queuePort))
         self.channel = self.connection.channel()
@@ -69,6 +73,20 @@ class javaWorker:
 
         # Start listening for new jobs
         self.channel.start_consuming()
+
+    def wait_for_rabbitmq(self):
+        connected = False
+        while not connected:
+            try:
+                connection = pika.BlockingConnection(
+                    pika.ConnectionParameters(host=self.queueHost, port=self.queuePort))
+                if connection.is_open:
+                    self.logger.info("Connected to Rabbitmq")
+                    connected = True
+            except Exception as error:
+                self.logger.info("Rabbitmq not ready, sleeping")
+                time.sleep(1)
+                pass
 
     # Writes out the code to the specified file
     def write_code_to_file(self, code, filename):
@@ -101,20 +119,37 @@ class javaWorker:
             # result = subprocess.run(['java', file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, timeout=timeout)
             results = []
             for test in tests:
-                result = subprocess.run(['java', file], stdout=subprocess.PIPE, stderr=subprocess.PIPE, input=test["input"].encode() + b"\n", timeout=timeout)
+                result = subprocess.run(['java', file], stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE, input=test["input"].encode() + b"\n", timeout=timeout)
                 passTest = False
                 result_string = result.stdout.decode().rstrip("\n\r")
                 if result_string == test["expected_output"]:
                     passTest = True
-                
-                self.logger.debug(f'Value from code: {result_string} Test Value: {test["expected_output"]}')
 
-                results.append({"stdout":result.stdout.decode(), "stderr":result.stderr.decode(), "pass_status":passTest})
+                self.logger.debug(
+                    f'Value from code: {result_string} Test Value: {test["expected_output"]}')
+
+                results.append({"stdout": result.stdout.decode(
+                ), "stderr": result.stderr.decode(), "pass_status": passTest})
 
             return results
         except subprocess.TimeoutExpired as e:
             self.logger.error(str(e))
             pass
+
+    def signal_manager_job_complete(self, job):
+        try:
+            # container id = basename "$(cat /proc/1/cpuset)"
+            result = subprocess.run(['basename $(cat /proc/1/cpuset)'],
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+            workerCompletedResponse = {
+                "language": self.language, "container_id": result.stdout.decode('utf-8').replace("\n", "")}
+
+            r = requests.post(url="http://" + self.managerURL + ":" + str(self.managerPort) + "/worker_completed",
+                            json=workerCompletedResponse, timeout=0.5)
+        except Exception as e:
+            self.logger.error(str(e))
 
     # The callback that is executed when a new job is taken from the queue
     def callback(self, ch, method, properties, body):
@@ -124,13 +159,14 @@ class javaWorker:
             job = json.loads(body)
             self.logger.debug(f'Language of job is: {job["language"]}')
 
-            if job["language"] == "java":
+            if job["language"] == self.language:
 
                 compileOutputs = []
                 runOutputs = []
 
                 for singleFile in job["files"]:
-                    self.write_code_to_file(singleFile["contents"], singleFile["filename"])
+                    self.write_code_to_file(
+                        singleFile["contents"], singleFile["filename"])
 
                     compileOutput = self.compile_file(
                         singleFile["filename"], job["compile_timeout"])
@@ -138,21 +174,26 @@ class javaWorker:
                     self.logger.debug(f"Compile Output: {compileOutput}")
                     compileOutputs.append(compileOutput)
 
-                runOutputs = self.testCode(job["run_file"], job["tests"], job["run_timeout"])
+                runOutputs = self.testCode(
+                    job["run_file"], job["tests"], job["run_timeout"])
                 self.logger.debug(f"Run outputs: {runOutputs}")
 
                 if job["callback_address"] != "":
                     jobResponse = {"error": "",
-                                "compile": compileOutputs,
-                                "run": runOutputs,
-                                "other": job["other"]
-                                }
+                                   "compile": compileOutputs,
+                                   "run": runOutputs,
+                                   "other": job["other"]
+                                   }
 
-                    self.logger.debug(f'Sending response with message: {jobResponse} to address: {job["callback_address"]}')
-                    r = requests.post(url=job["callback_address"], json=jobResponse, timeout=0.5)
-                    self.logger.debug(f'Callback url resulted in a response code of: {r.status_code}')
+                    self.logger.debug(
+                        f'Sending response with message: {jobResponse} to address: {job["callback_address"]}')
+                    r = requests.post(
+                        url=job["callback_address"], json=jobResponse, timeout=0.5)
+                    self.logger.debug(
+                        f'Callback url resulted in a response code of: {r.status_code}')
                 else:
-                    self.logger.warning("No callback address specified, not sending the message")
+                    self.logger.warning(
+                        "No callback address specified, not sending the message")
 
                 ch.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -161,39 +202,46 @@ class javaWorker:
                 self.logger.debug(errorMsg)
                 if job["callback_address"] != "":
                     jobResponse = {"error": errorMsg}
-                    self.logger.debug(f'Sending response with message: {jobResponse} to address: {job["callback_address"]}')
-                    r = requests.post(url=job["callback_address"], json=jobResponse, timeout=0.5)
-                    self.logger.debug(f'Callback url resulted in a response code of: {r.status_code}')
+                    self.logger.debug(
+                        f'Sending response with message: {jobResponse} to address: {job["callback_address"]}')
+                    r = requests.post(
+                        url=job["callback_address"], json=jobResponse, timeout=0.5)
+                    self.logger.debug(
+                        f'Callback url resulted in a response code of: {r.status_code}')
                 else:
-                    self.logger.warning("No callback address specified, not sending the message")
+                    self.logger.warning(
+                        "No callback address specified, not sending the message")
 
                 ch.basic_ack(delivery_tag=method.delivery_tag)
 
+            self.signal_manager_job_complete(job)
             self.connection.close()
             sys.exit()
 
         except Exception as e:
             self.logger.error(str(e))
 
-            #Properly quit and exit, but dont send the acknowledgement message
-            #will re queue on a different worker
+            # Properly quit and exit, but dont send the acknowledgement message
+            # will re queue on a different worker
             ch.basic_ack(delivery_tag=method.delivery_tag)
             self.channel.stop_consuming()
             self.connection.close()
             sys.exit()
 
-#main argument parser function
-#accepts arguments and runs the worker
+# main argument parser function
+# accepts arguments and runs the worker
+
+
 def parse_arguments():
     parser = ArgumentParser(description='Optional app description')
 
-    parser.add_argument("-u", "--queueHost", dest="queueHost", nargs='?', const="localhost", default="localhost",
+    parser.add_argument("-u", "--queueHost", dest="queueHost", nargs='?', const="broker", default="broker",
                         help="RabbitMQ Queue host address", metavar="host")
     parser.add_argument("-p", "--queuePort", dest="queuePort", nargs='?', const=5672, default=5672,
                         help="RabbitMQ Queue port", metavar="port")
     parser.add_argument("-n", "--queueName", dest="queueName", nargs='?', const="java", default="java",
                         help="RabbitMQ Queue name", metavar="name")
-    parser.add_argument("-m", "--managerURL", dest="managerURL", nargs='?', const="localhost", default="localhost",
+    parser.add_argument("-m", "--managerURL", dest="managerURL", nargs='?', const="manager", default="manager",
                         help="RECESS Manager URL", metavar="URL")
     parser.add_argument("-t", "--managerPort", dest="managerPort", nargs='?', const=4582, default=4582,
                         help="RECESS Manager port", metavar="port")
@@ -215,7 +263,9 @@ def parse_arguments():
     else:
         print(args)
 
-#parses values from the command line and represents as applicable boolean value
+# parses values from the command line and represents as applicable boolean value
+
+
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
         return True

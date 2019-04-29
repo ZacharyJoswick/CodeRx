@@ -1,5 +1,11 @@
 FROM python:3.7
 
+EXPOSE 4582
+
+RUN apt-get update && apt-get install dumb-init && rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
 RUN mkdir -p /manager
 
 WORKDIR /manager

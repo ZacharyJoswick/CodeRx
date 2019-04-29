@@ -40,6 +40,24 @@ services:
     networks:
       - default
 
+  etcd:
+    container_name: etcd
+    image: quay.io/coreos/etcd:v3.1.20
+    entrypoint: /usr/local/bin/etcd
+    command:
+        - '--name=etcd-1'
+        - '--initial-advertise-peer-urls=http://etcd:2380'
+        - '--listen-peer-urls=http://etcd:2380'
+        - '--listen-client-urls=http://etcd:2379,http://localhost:2379'
+        - '--advertise-client-urls=http://etcd:2379'
+        - '--initial-cluster-token=mys3cr3ttok3n'
+        - '--heartbeat-interval=250'
+        - '--election-timeout=1250'
+    ports:
+        - 2379
+    volumes:
+        - etcd:/etcd_data
+
   #Frontend proxy, handles security and access to backend services
   nginx:
     build:
@@ -62,20 +80,22 @@ services:
   broker:
     image: rabbitmq:3-management
     restart: always
+    environment: 
+      - ETCDCTL_API=3
     ports:
       - 5672:5672 # port for the daemon API
       - 15672:15672 # port for the RabbitMQ management interface
-    healthcheck:
-        test: ["CMD", "curl", "-f", "http://localhost:15672"]
-        interval: 30s
-        timeout: 10s
-        retries: 5
+    # healthcheck:
+    #     test: ["CMD", "curl", "-f", "http://localhost:15672"]
+    #     interval: 30s
+    #     timeout: 10s
+    #     retries: 5
 
   api:
     build:
       context: ./components/RECESS/api
       dockerfile: ./api.Dockerfile
-    command: python recess_api.py -p 5672 -s ${RABBIT_HOST_IP}
+    command: python recess_api.py -p 5672 -s broker
     restart: on-failure
     expose:
      - "4520"
@@ -84,19 +104,27 @@ services:
     depends_on: 
       - broker
 
-  # manager:
-  #   build:
-  #     context: 
+  manager:
+    build:
+      context: ./components/RECESS/manager
+      dockerfile: ./manager.Dockerfile
+    volumes:
+      - "./components/RECESS/manager:/manager"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: on-failure
+    # command: gunicorn --worker-class gevent -w 4 -b :4582 manager:app
 
-  worker1:
+  worker:
     build:
       context: ./components/RECESS/worker/java
       dockerfile: ./java.Dockerfile
-    command: python worker.py -u ${RABBIT_HOST_IP}
-    restart: always
+    command: ls
+    #command: python worker.py -u broker
+    # restart: always
     depends_on: 
       - broker
 
 volumes:
   dbdata:
     external: true
+  etcd:

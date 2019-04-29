@@ -3,3 +3,4 @@ coloredlogs
 requests
 flask
 gunicorn
+etcd3

@@ -3,3 +3,5 @@ requests
 flask
 gunicorn
 docker
+etcd3
+gevent

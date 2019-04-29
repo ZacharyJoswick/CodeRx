@@ -5,8 +5,11 @@ import sys
 import uuid
 import threading
 import time
+import requests
 from argparse import RawTextHelpFormatter
 from flask import Flask, jsonify, make_response, request, abort
+
+import etcd3
 
 app = Flask(__name__)
 
@@ -20,12 +23,15 @@ class RpcClient(object):
         self.credentials = pika.PlainCredentials('guest', 'guest')
         self.parameters = pika.ConnectionParameters(
             host, int(port), '/',  self.credentials)
-        self.connection = pika.BlockingConnection(self.parameters)
+        self.wait_for_rabbitmq()
+        # self.connection = pika.BlockingConnection(self.parameters)
         self.channel = self.connection.channel()
         result = self.channel.queue_declare(queue=self.rpc_queue, durable=True)
         thread = threading.Thread(target=self._process_data_events)
         thread.setDaemon(True)
         thread.start()
+        self.setup_etcd()
+        # self.signalManagerToStart()
 
     def _process_data_events(self):
         while True:
@@ -44,6 +50,28 @@ class RpcClient(object):
                                        ),
                                        body=payload)
         return corr_id
+
+    # def signalManagerToStart(self):
+    #     self.etcd.put('/start', 'true')
+        # r = requests.post(url="http://manager/start_workers", timeout=0.5)
+        # app.logger.info(f"Manager responded with: {r}")
+
+    def setup_etcd(self):
+        self.etcd = etcd3.client(host='etcd', port=2379)
+        # etcd.put('/key', 'dooot')
+
+    def wait_for_rabbitmq(self):
+        connected = False
+        while not connected:
+            try:
+                self.connection = pika.BlockingConnection(self.parameters)
+                if self.connection.is_open:
+                    app.logger.info("Connected to Rabbitmq")
+                    connected = True
+            except Exception as error:
+                app.logger.info("Rabbitmq not ready, sleeping")
+                time.sleep(1)
+                pass
 
 @app.route('/')
 def test():
