@@ -34,21 +34,24 @@ def editor_with_problem(problem_id):
     temp_problem={"description":p.description,"language":p.language,"id":p.id,"test_cases":test_cases}
     return render_template('editor.html', title='Editor',problem=temp_problem)
 
-@app.route('/new_problem', methods=['POST'])
+@app.route('/new_problem', methods=['POST', 'GET'])
 @login_required
 def create_new_problem():
-    if 'description' not in request.json.keys():
-        return make_response(jsonify({'error': 'missing problem description'}), 400)
-    if 'language' not in request.json.keys():
-        return make_response(jsonify({'error': 'missing problem language'}), 400)
-    if 'allowmultiplefiles' not in request.json.keys():
-        return make_response(jsonify({'error': 'missing allowmultiplefiles'}), 400)
-    if 'due_date' not in request.json.keys():
-        return make_response(jsonify({'error': 'missing due date'}), 400)
-    if 'test_cases' not in request.json.keys():
-        return make_response(jsonify({'error': 'missing test cases'}), 400)
-    app.logger.info(request.json)
-    return make_response(jsonify({'response': 'success'}), 200)
+    if request.method == 'POST':
+        if 'description' not in request.json.keys():
+            return make_response(jsonify({'error': 'missing problem description'}), 400)
+        if 'language' not in request.json.keys():
+            return make_response(jsonify({'error': 'missing problem language'}), 400)
+        if 'allowmultiplefiles' not in request.json.keys():
+            return make_response(jsonify({'error': 'missing allowmultiplefiles'}), 400)
+        if 'due_date' not in request.json.keys():
+            return make_response(jsonify({'error': 'missing due date'}), 400)
+        if 'test_cases' not in request.json.keys():
+            return make_response(jsonify({'error': 'missing test cases'}), 400)
+        app.logger.info(request.json)
+        return make_response(jsonify({'response': 'success'}), 200)
+    else:
+        return render_template('create_problem.html', title='Create Problem')
 
 @app.route('/editor')
 @login_required

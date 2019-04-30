@@ -46,12 +46,19 @@ Welcome to CodeRx
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('editor') }}">Editor</a>
             </li>
+            {% endif %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('join_class') }}">Join A Class</a>
             </li>
             {% if current_user.has_role("admin") %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('admin') }}">Admin</a>
+            </li>
+            {% endif %}
+
+            {% if current_user.has_role("professor") %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('create_new_problem') }}">Create A Problem</a>
             </li>
             {% endif %}
             <!-- <li class="nav-item">
@@ -61,7 +68,7 @@ Welcome to CodeRx
 
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            {%- if request.path == "/editor" %}}
+            {% if request.path == "/editor" %}}
             <button onclick="displayResults()">Results
             </button>
             {% endif %}

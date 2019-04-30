@@ -4,16 +4,18 @@
 {% block app_content %}
 
 <h3>Problem #1</h3>
-<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/xterm/dist/xterm.css')}}" /> 
+<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/xterm/dist/xterm.css')}}" />
 <script src="{{ url_for('static', filename='node_modules/xterm/dist/xterm.js')}}"></script>
 
 <style>
     #terminal {
-      overflow: hidden;
-      width: 31vw;
-      height: 28vh; /* <- fixed height */
-      font-size: 16px;
-      line-height: 17px; /* <- initial line-height */
+        overflow: hidden;
+        width: 31vw;
+        height: 28vh;
+        /* <- fixed height */
+        font-size: 16px;
+        line-height: 17px;
+        /* <- initial line-height */
     }
 </style>
 
@@ -23,7 +25,7 @@
         <div class="col-lg-8">
             <div id="container" style="width:65vw;height:75vh;border:1px solid grey"></div>
             <button type="button" id="generate" class="btn btn-primary btn-lg btn-block">Generate Output Line</button>
-            
+
         </div>
         <div class="col-lg-4">
             <div class="row mb-3">
@@ -36,75 +38,45 @@
                 </div>
             </div>
             <div id="displayResults" style="display: none; position: absolute; top: 0; right: 0;">
-            <div class="row">
-                <div class="col-lg">
-                    <table class="table table-dark table-bordered">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Expected</th>
-                                <th scope="col">Run</th>
-                                <th scope="col">Result</th>
-                            </tr>
-                        </thead>
-                        
-                        <tbody>
-                            {% for case in TestCases %}
-                            <tr>
-                                <th scope = "row"> {{loop.index}}</th>
-                                <td id = "results_{{loop.index}}_1">{{case.input}}</td>
-                                <td id = "results_{{loop.index}}_2"></td>
-                                <td id = "results_{{loop.index}}_3"></td>
-                            {% endfor %}
+                <div class="row">
+                    <div class="col-lg">
+                        <table class="table table-dark table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Expected</th>
+                                    <th scope="col">Run</th>
+                                    <th scope="col">Result</th>
+                                </tr>
+                            </thead>
 
-
-
-
-
-
-
-
-                        {#
-                            <tr>
-                                <th scope="row">1</th>
-                                <td id="results_1_1">HelloWorld(1,2) -> True</td>
-                                <td id="results_1_2">True</td>
-                                <td id="results_1_3">OK</td>
-                                <td id="results_1_4" style="background-color: green;"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>HelloWorld(2,2) -> True</td>
-                                <td>True</td>
-                                <td>OK</td>
-                                <td style="background-color: green;"></td>
-                            </tr>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>HelloWorld(2,1) -> True</td>
-                                <td>False</td>
-                                <td>X</td>
-                                <td style="background-color: red;"></td>
-                            </tr>
-                            #}
-                        </tbody>
-                    </table>
+                            <tbody>
+                                {% for case in TestCases %}
+                                <tr>
+                                    <th scope="row"> {{loop.index}}</th>
+                                    <td id="results_{{loop.index}}_1">{{case.input}}</td>
+                                    <td id="results_{{loop.index}}_2"></td>
+                                    <td id="results_{{loop.index}}_3"></td>
+                                    {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     </div>
 </div>
 <h3>Program output</h3>
 <div id="terminal"></div>
-<script>function displayResults() {
-  var x = document.getElementById("displayResults");
-  if (x.style.display === "none") {
-    x.style.display = "block";
-  } else {
-    x.style.display = "none";
-  }
-}
+<script>
+    function displayResults() {
+        var x = document.getElementById("displayResults");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
 </script>
 
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
@@ -171,42 +143,44 @@
     var term = new Terminal();
     term.open(document.getElementById('terminal'));
     //term.writeln('Hello from \x1B[1;3;31mxterm.js\x1B[0m')
-    
+
     var socket;
-    $(document).ready(function(){
+    $(document).ready(function () {
         socket = io.connect('http://' + document.domain + ':' + location.port);
-        socket.on('connect', function() {
-            socket.emit('my event', {data: 'I\'m connected!'});
+        socket.on('connect', function () {
+            socket.emit('my event', {
+                data: 'I\'m connected!'
+            });
             console.log("socketio connected");
         });
 
-        socket.on('problem_result', function(data) {
+        socket.on('problem_result', function (data) {
             console.log(data);
             var i;
             for (i = 0; i < data.length; i++) {
-                $("#results_"+ (i+1).toString() + "_2").html(data[i].stdout);
-                $("#results_"+ (i+1).toString() + "_3").html(data[i].pass_status.toString());
-                if(data[i].pass_status == true){
-                    $("#results_"+ (i+1).toString() + "_3").css("background-color", "green");
-                }else{
-                    $("#results_"+ (i+1).toString() + "_3").css("background-color", "red");
+                $("#results_" + (i + 1).toString() + "_2").html(data[i].stdout);
+                $("#results_" + (i + 1).toString() + "_3").html(data[i].pass_status.toString());
+                if (data[i].pass_status == true) {
+                    $("#results_" + (i + 1).toString() + "_3").css("background-color", "green");
+                } else {
+                    $("#results_" + (i + 1).toString() + "_3").css("background-color", "red");
                 }
                 term.writeln(data[i].stdout);
             }
-            
+
         });
-        
+
     });
 
     $('#generate').on('click', function (e) {
         displayResults();
         console.log("Sending code to backend");
         //socket.emit("new_problem_from_user", {data: cstr_encode(editor.getValue())})
-        socket.emit("new_problem_from_user", {data: editor.getValue()});
+        socket.emit("new_problem_from_user", {
+            data: editor.getValue()
+        });
 
     });
-
-    
 </script>
 
 {% endblock %}
