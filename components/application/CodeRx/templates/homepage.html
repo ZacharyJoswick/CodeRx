@@ -26,7 +26,7 @@
       });
 
     </script>
-{% if current_user.has_role("student")%}
+{% if current_user.has_role("professor")%}
 <body>
 <div class="row justify-content-center" id="profile">
 </div>
@@ -106,7 +106,7 @@
 
 
 {#% elif current_user.Role == (professor) %#}
-{% elif current_user.has_role("professor") %}
+{% elif current_user.has_role("student") %}
 <div class="container-fluid">
   <div class="row">
     <div class="col-lg-4">

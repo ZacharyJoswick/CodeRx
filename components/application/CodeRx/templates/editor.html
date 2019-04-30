@@ -27,7 +27,7 @@
 </style>
     <div class="justify-content-center" id="loadingElement">
         <h1 style="display: block;">Loading</h1>
-        <img src="https://media0.giphy.com/media/pOKrXLf9N5g76/giphy.gif" alt="Loading" width="400" height="400" style="margin-left: auto;margin-right: auto;left: 0;
+        <img src="https://media0.giphy.com/media/pOKrXLf9N5g76/giphy.gif" alt="Loading" width="600" height="600" style="margin-left: auto;margin-right: auto;left: 0;
         right: 0;margin-top: auto;margin-bottom: auto;top: 0;bottom: 0;display: block;">
     </div>
 
@@ -45,8 +45,7 @@
                     A set of test variables are passed through the system.in with an expected output.
                 </div>
             </div>
-            <h3 style="padding-left: 20px;"">Program output</h3>
-            <div id="terminal"></div>
+            
             <div id="displayResults" style="display: none; position: absolute; top: 0; right: 0;">
                 <div class="row">
                     <div class="col-lg">
@@ -72,6 +71,8 @@
                         </table>
                     </div>
                 </div>
+                <h3 style="padding-left: 20px;"">Program output</h3>
+            <div id="terminal"></div>
             </div>
         </div>
     </div>
@@ -90,7 +91,7 @@
                 {% for case in current_problems %}
                   <tr>
                     <th>
-                      {#<button onclick="{{case}}()" class="btn btn-primary btn-lg btn-block" style="padding: 5px;">{{case.name}}</button>#}
+                      {#<button onclick="{{case}}()" class="btn btn-primary btn-lg btn-block">{{case.name}}</button>#}
                       <a href="{{ url_for('homepage') }}">{{case.name}}</a></th>
                     <th>{{case.class}}</th>
                     <th>{{case.due_date}}</th>
