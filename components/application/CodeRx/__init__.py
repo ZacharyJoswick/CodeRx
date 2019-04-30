@@ -45,7 +45,7 @@ def create_user():
 
 @user_registered.connect_via(app)
 def user_registered_sighandler(app, user, confirm_token):
-    default_role = user_datastore.find_role("professor")
+    default_role = user_datastore.find_role("student")
     user_datastore.add_role_to_user(user, default_role)
     db.session.commit()
 
