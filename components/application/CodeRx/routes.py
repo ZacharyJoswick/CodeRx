@@ -30,19 +30,23 @@ def editor():
 @app.route('/homepage')
 @login_required
 def homepage():
-    current_problems = [{"name":"HelloWorld", "class":"Brennaman Itec 120", "due_date":"01-28-19"},
-    {"name":"If", "class":"Brennaman Itec 120", "due_date":"02-05-19"},
-    {"name":"Else", "class":"Brennaman Itec 120", "due_date":"02-10-19"},
-    {"name":"If Else", "class":"Brennaman Itec 120", "due_date":"02-13-19"},
-    {"name":"Money", "class":"Brennaman Itec 120", "due_date":"02-15-19"},
-    {"name":"Minutes", "class":"Brennaman Itec 120", "due_date":"02-31-19"},
-    {"name":"MovieTicket", "class":"Brennaman Itec 120", "due_date":"03-08-19"},
-    {"name":"For", "class":"Brennaman Itec 120", "due_date":"03-15-19"},
-    {"name":"vowelCount", "class":"Brennaman Itec 120", "due_date":"03-19-19"},
-    {"name":"Reserse", "class":"Brennaman Itec 120", "due_date":"04-01-19"},
-    {"name":"Retrieve", "class":"Brennaman Itec 120", "due_date":"04-20-19"},
-    {"name":"Programming Assignment 4", "class":"Itec 324", "due_date":"04-29-19"},
-    {"name":"Iteration 3 Demo", "class":"Itec 370", "due_date":"04-30-19"},]
+    Submissions=[{"id":"vaognre","user_id":"Zackary Joswick","submission_date":"03-20-19","grade":75},
+    {"id":"11iri33","user_id":"Jeffrey Smith","submission_date":"03-21-19","grade":33},
+    {"id":"asdfrew","user_id":"Raj Patel","submission_date":"03-20-19","grade":30},
+    {"id":"sadverw","user_id":"Marissa Bucaro","submission_date":"03-18-19","grade":70},]
+    current_problems = [{"id":"asdfasdf","name":"HelloWorld", "class":"Brennaman Itec 120", "due_date":"01-28-19", "submissions":Submissions},
+    {"id":"asdfasdf","name":"If", "class":"Brennaman Itec 120", "due_date":"02-05-19", "submissions":Submissions},
+    {"id":"2verv","name":"Else", "class":"Brennaman Itec 120", "due_date":"02-10-19", "submissions":Submissions},
+    {"id":"df3v","name":"If Else", "class":"Brennaman Itec 120", "due_date":"02-13-19", "submissions":Submissions},
+    {"id":"q3rv ","name":"Money", "class":"Brennaman Itec 120", "due_date":"02-15-19", "submissions":Submissions},
+    {"id":"asdfas","name":"Minutes", "class":"Brennaman Itec 120", "due_date":"02-31-19", "submissions":Submissions},
+    {"id":"ghjk","name":"MovieTicket", "class":"Brennaman Itec 120", "due_date":"03-08-19", "submissions":Submissions},
+    {"id":"2433ee","name":"For", "class":"Brennaman Itec 120", "due_date":"03-15-19", "submissions":Submissions},
+    {"id":"scvas4","name":"vowelCount", "class":"Brennaman Itec 120", "due_date":"03-19-19", "submissions":Submissions},
+    {"id":"qpdppp","name":"Reserse", "class":"Brennaman Itec 120", "due_date":"04-01-19", "submissions":Submissions},
+    {"id":"awf432r","name":"Retrieve", "class":"Brennaman Itec 120", "due_date":"04-20-19", "submissions":Submissions},
+    {"id":"43vbvwr","name":"Programming Assignment 4", "class":"Itec 324", "due_date":"04-29-19", "submissions":Submissions},
+    {"id":"q234rq","name":"Iteration 3 Demo", "class":"Itec 370", "due_date":"04-30-19", "submissions":Submissions},]
     past_problems = [{"name":"test", "class":"Brennaman Itec 120", "grade":75},
     {"name":"print", "class":"Dr. Chase Itec 220", "grade":100},
     {"name":"recursion", "class":"Dr. Chase Itec 220", "grade":75},]

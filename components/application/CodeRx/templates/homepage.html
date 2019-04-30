@@ -26,7 +26,7 @@
       });
 
     </script>
-{% if current_user.has_role("student")%}
+{% if current_user.has_role("professor")%}
 <body>
 <div class="row justify-content-center" id="profile">
 </div>
@@ -106,7 +106,7 @@
 
 
 {#% elif current_user.Role == (professor) %#}
-{% elif current_user.has_role("professor") %}
+{% elif current_user.has_role("student") %}
 <div class="container-fluid">
   <div class="row">
     <div class="col-lg-4">
@@ -127,18 +127,34 @@
         <table class="table table-dark table-bordered">
           {% for object in case.problems %}
             <tr>
-            <th><a href="{{ url_for('homepage') }}">{{object.name}}</a></th>
+            <th width="45%"><button onclick= "num_{{object.id}}()">View {{object.name}} Submissions</button></th>
             <th>{{object.class}}</th>
-            <th>{{object.due_date}}</th>
-          </tr>
-          <script>
-          var originalDate = new String('{{object.due_date}}');
-          var date = ('20' + originalDate.substring(originalDate.length-2) + '-' + 
-            originalDate.substring(0,originalDate.length-3));
-          var day = parseInt(originalDate.substring(3,originalDate.length-3));
-          var end_date = (date.substring(0,6) + '(day+1)');
-          events.push({title: '{{case.class_name}} {{object.name}} due', start: date, end: end_date});
-          </script>
+            <th width="25%">{{object.due_date}}</th>
+            </tr>
+            <script>function num_{{object.id}}(){
+              var a = document.getElementById("k_{{object.id}}");
+              if (a.style.display === "none") {
+                a.style.display = "block";
+              } else {
+                a.style.display = "none";
+              }
+            }
+            </script>
+            <div id="k_{{object.id}}" style="display:none;">
+              {% for inti in object.submissions %}
+                <ul class="list-group"> 
+                  <li class="list-group-item">{{inti.user_id}} Submitted: {{inti.submission_date}} Grade: {{inti.grade}}</li>
+                </ul>
+              {% endfor %}
+            </div>
+            <script>
+            var originalDate = new String('{{object.due_date}}');
+            var date = ('20' + originalDate.substring(originalDate.length-2) + '-' + 
+              originalDate.substring(0,originalDate.length-3));
+            var day = parseInt(originalDate.substring(3,originalDate.length-3));
+            var end_date = (date.substring(0,6) + '(day+1)');
+            events.push({title: '{{case.class_name}} {{object.name}} due', start: date, end: end_date});
+            </script>
           {% endfor %}
         </table>
       </div>
@@ -147,5 +163,6 @@
     </div>
     <div id='calendar' class="col-lg-8"></div>
   </div>
+</div>
 {% endif %}
 {% endblock %}
