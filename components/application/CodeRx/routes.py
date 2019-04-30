@@ -31,8 +31,10 @@ def editor_with_problem(problem_id):
     test_cases=[]
     for case in p.test_cases:
         test_cases.append({"id":case.id,"input":case.input,"expected_output":case.expected_output})
-    temp_problem={"description":p.description,"language":p.language,"id":p.id,"test_cases":test_cases}
-    return render_template('editor.html', title='Editor',problem=temp_problem)
+    tmpfile = p.files[0].content
+    temp_problem={"description":p.description,"language":p.language,"id":p.id,"test_cases":test_cases, "name": p.name, "file_content": tmpfile}
+    app.logger.info(temp_problem)
+    return render_template('editor_single.html', title='Editor',problem=temp_problem)
 
 @app.route('/new_problem', methods=['POST', 'GET'])
 @login_required
@@ -103,14 +105,33 @@ def create_professor():
 @app.route('/homepage')
 @login_required
 def homepage():
-    app.logger.info(f"Current User Information: {current_user.email}")
-    #User.query.filter_by(email=current_user.email)
-    # new_sumbission = Submission(files="A file")
-    # db.session.add(new_sumbission)
-    # db.session.commit()
-    #tmp = Submission.query.filter_by(id=1).first()
-    #app.logger.info(f"Query Result: {tmp.files}")
-    return render_template('homepage.html', title='Homepage')
+    Submissions=[{"id":"vaognre","user_id":"Zackary Joswick","submission_date":"03-20-19","grade":75},
+    {"id":"11iri33","user_id":"Jeffrey Smith","submission_date":"03-21-19","grade":33},
+    {"id":"asdfrew","user_id":"Raj Patel","submission_date":"03-20-19","grade":30},
+    {"id":"sadverw","user_id":"Marissa Bucaro","submission_date":"03-18-19","grade":70},]
+    current_problems = [{"id":"asdfasdf","name":"HelloWorld", "class":"Brennaman Itec 120", "due_date":"01-28-19", "submissions":Submissions},
+    {"id":"asdfasdf","name":"If", "class":"Brennaman Itec 120", "due_date":"02-05-19", "submissions":Submissions},
+    {"id":"2verv","name":"Else", "class":"Brennaman Itec 120", "due_date":"02-10-19", "submissions":Submissions},
+    {"id":"df3v","name":"If Else", "class":"Brennaman Itec 120", "due_date":"02-13-19", "submissions":Submissions},
+    {"id":"q3rv ","name":"Money", "class":"Brennaman Itec 120", "due_date":"02-15-19", "submissions":Submissions},
+    {"id":"asdfas","name":"Minutes", "class":"Brennaman Itec 120", "due_date":"02-31-19", "submissions":Submissions},
+    {"id":"ghjk","name":"MovieTicket", "class":"Brennaman Itec 120", "due_date":"03-08-19", "submissions":Submissions},
+    {"id":"2433ee","name":"For", "class":"Brennaman Itec 120", "due_date":"03-15-19", "submissions":Submissions},
+    {"id":"scvas4","name":"vowelCount", "class":"Brennaman Itec 120", "due_date":"03-19-19", "submissions":Submissions},
+    {"id":"qpdppp","name":"Reserse", "class":"Brennaman Itec 120", "due_date":"04-01-19", "submissions":Submissions},
+    {"id":"awf432r","name":"Retrieve", "class":"Brennaman Itec 120", "due_date":"04-20-19", "submissions":Submissions},
+    {"id":"43vbvwr","name":"Programming Assignment 4", "class":"Itec 324", "due_date":"04-29-19", "submissions":Submissions},
+    {"id":"q234rq","name":"Iteration 3 Demo", "class":"Itec 370", "due_date":"04-30-19", "submissions":Submissions},]
+    past_problems = [{"name":"test", "class":"Brennaman Itec 120", "grade":75},
+    {"name":"print", "class":"Dr. Chase Itec 220", "grade":100},
+    {"name":"recursion", "class":"Dr. Chase Itec 220", "grade":75},]
+    classes = [{"class_name":"Itec 120-01", "class_code":"4rfbsd", "Description":"8am MWF Java 1", "problems" : current_problems},
+    {"class_name":"Itec 120-02", "class_code":"aR4bi3", "Description":"9am MWF Java 1", "problems" : current_problems},
+    {"class_name":"Itec 120-03", "class_code":"ASFgtd", "Description":"10am MWF Java 1", "problems" : current_problems},
+    {"class_name":"Itec 120-04", "class_code":"34tFSV", "Description":"11am TuThr Java 1", "problems" : current_problems},]
+    return render_template('homepage.html', title='Homepage', email=current_user.email, 
+    name=current_user.name, current_problems=current_problems, past_problems=past_problems, 
+    classes=classes)#, problem_list = problem_list)
 
 #displying problems on homepage
 #@app.route('/homepage/<int:user.id>')
@@ -193,3 +214,118 @@ def test_message(message):
     # app.logger.info(problem["files"][0]["contents"])
 
     # emit('my response', {'data': 'got it!'})  
+
+@socketio.on('new_problem_from_professor')
+def new_problem_from_professor(message):
+    app.logger.info(message)
+
+    problem = message["problem"]
+
+    problem["callback_address"] = "http://web:5000/job_complete"
+    problem["compile_timeout"] = 5
+    problem["run_timeout"] = 5
+    problem["other"] = {}
+
+    app.logger.info(problem)
+
+    r = requests.post(url="http://api:4520/api/1.0/new_job", json=problem, timeout=4)
+    app.logger.debug(f'Callback url resulted in a response code of: {r.status_code}')
+
+@socketio.on('professor_start_editing')
+def professor_start_editing(message):
+    app.logger.info(message)
+
+    if current_user.last_problem_id == None:
+        tmpProb = Problem()
+        db.session.add(tmpProb)
+        db.session.commit()
+
+        current_user.last_problem_id = tmpProb.id
+        db.session.commit()
+
+        socketio.emit("new_problem_id", tmpProb.id)
+    else:
+        socketio.emit("new_problem_id", current_user.last_problem_id)
+        tmpProb = Problem.query.filter_by(id=current_user.last_problem_id).first()
+
+        if len(tmpProb.files) > 0:
+            file_contents = tmpProb.files[0].content
+        else:
+            file_contents = ""
+
+        test_cases = []
+
+        if len(tmpProb.test_cases) > 0:
+            for case in tmpProb.test_cases:
+                test_cases.append({"input": case.input, "expected_output": case.expected_output})
+
+        prob = {'title': tmpProb.name, "description": tmpProb.description, 
+                'file_contents': file_contents, "test_cases": test_cases}
+                
+        socketio.emit("reload_problem", prob)
+
+
+@socketio.on('professor_save_problem')
+def professor_save_problem(message):
+    app.logger.info(message)
+
+    problem = message["problem"]
+
+    tmpProb = Problem.query.filter_by(id=problem["id"]).first()
+    tmpProb.description = problem["description"]
+    tmpProb.name = problem["title"]
+    tmpProb.language = "java"
+    tmpProb.allowmultiplefiles = False
+    tmpProb.entry_command = problem["run_file"]
+    db.session.commit()
+    
+    if len(tmpProb.files ) == 0:
+        app.logger.info("Adding file")
+        tmpFile = Problem_Base_File(file_name=problem["files"][0]["filename"], 
+                                    content=problem["files"][0]["contents"])
+        
+        tmpProb.files.append(tmpFile)
+        db.session.add(tmpFile)
+
+        db.session.commit()
+    else:
+        app.logger.info("Using an existing file")
+        tmpProb.files[0].file_name = problem["files"][0]["filename"]
+        tmpProb.files[0].content = problem["files"][0]["contents"]
+        db.session.commit()
+
+
+    db.session.commit()
+    if len(tmpProb.test_cases) == len(problem["test_cases"]):
+        for i in range(0, len(problem["test_cases"])):
+            tmpProb.test_cases[i].input = problem["test_cases"][i]["input"]
+            tmpProb.test_cases[i].expected_output = problem["test_cases"][i]["expected_output"]
+    elif len(tmpProb.test_cases) == 0:
+        for i in range(0, len(problem["test_cases"])):
+            tempCase = TestCase(input=problem["test_cases"][i]["input"], expected_output=problem["test_cases"][i]["expected_output"])
+            tmpProb.test_cases.append(tempCase)
+            db.session.add(tempCase)
+            db.session.commit()
+    else:
+        for case in tmpProb.test_cases:
+            tmpProb.test_cases.remove(case)
+        
+        for i in range(0, len(problem["test_cases"])):
+            tempCase = TestCase(input=problem["test_cases"][i]["input"], expected_output=problem["test_cases"][i]["expected_output"])
+            tmpProb.test_cases.append(tempCase)
+            db.session.add(tempCase)
+            db.session.commit()
+
+
+    # app.logger.info(tmpProb.created_date)
+
+    # problem["callback_address"] = "http://web:5000/job_complete"
+    # problem["compile_timeout"] = 5
+    # problem["run_timeout"] = 5
+    # problem["other"] = {}
+
+    # app.logger.info(problem)
+
+    # r = requests.post(url="http://api:4520/api/1.0/new_job", json=problem, timeout=4)
+    # app.logger.debug(f'Callback url resulted in a response code of: {r.status_code}')
+

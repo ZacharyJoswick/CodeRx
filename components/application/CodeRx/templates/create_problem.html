@@ -3,6 +3,7 @@
 
 {% block app_content %}
 
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
@@ -13,6 +14,7 @@
 <script src="{{ url_for('static', filename='node_modules/monaco-editor/min/vs/loader.js')}}"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
 
 <style type="text/css">
     .table-wrapper {
@@ -125,8 +127,6 @@
     }
 </style>
 
-
-
 <div class="container-fluid">
     <!--<div class="row justify-content-center">
         <h2>Create New Problem</h2>
@@ -140,7 +140,7 @@
         <div class="col-6">
             <h3 class="text-center">Program title</h3>
             <div class="input-group input-group-lg">
-                <input type="text" class="form-control" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+                <input type="text" class="form-control" id="programTitle" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
             </div>
             <h4 class="text-center pt-3">Problem Description</h4>
             <div id="summernote"></div>
@@ -149,7 +149,7 @@
     </div>
     <div class="row justify-content-center">
         <div class="col-6">
-            <h4 class="text-center">Compile Output</h4>
+            <h4 class="text-center">Run Output</h4>
             <div id="terminal"></div>
         </div>
         <div class="col-6">
@@ -166,12 +166,12 @@
                             </div>
                         </div>
                     </div>
-                    <table class="table table-bordered pt-0">
+                    <table class="table table-bordered pt-0" id="testCaseTable">
                         <thead>
                             <tr>
                                 <th>Input</th>
                                 <th>Expected Output</th>
-                                <th>Hidden</th>
+                                <th>Pass State</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -183,10 +183,10 @@
                 <div class="col">
                     <h4 class="text-center">Controls</h4>
                     <div class="row pt-2">
-                        <button type="button" class="btn btn-block btn-primary">Test Problem</button>
+                        <button type="button" id="generate" class="btn btn-block btn-primary">Test Problem</button>
                     </div>
                     <div class="row pt-2">
-                        <button type="button" class="btn btn-block btn-success">Save Problem</button>
+                        <button type="button" id="saveProblem" class="btn btn-block btn-success">Save Problem</button>
                     </div>
                     <div class="row pt-2">
                         <button type="button" class="btn btn-block btn-danger">Delete Problem</button>
@@ -209,7 +209,7 @@
     </style>
     <script>
         // Warning before leaving the page (back button, or outgoinglink)
-        window.onbeforeunload = function() {
+        window.onbeforeunload = function () {
             return true;
         };
     </script>
@@ -225,10 +225,10 @@
             $(".add-new").click(function () {
                 $(this).attr("disabled", "disabled");
                 var index = $("table tbody tr:last-child").index();
-                var row = '<tr>' +
-                    '<td><input type="text" class="form-control" name="input" id="input"></td>' +
-                    '<td><input type="text" class="form-control" name="expected_output" id="expected_output"></td>' +
-                    '<td><input type="text" class="form-control" name="hidden" id="hidden"></td>' +
+                var row = '<tr class="testCaseRow">' +
+                    '<td class="inputColumn"><input type="text" class="form-control" name="input" id="input"></td>' +
+                    '<td class="expectedOutputColumn"><input type="text" class="form-control" name="expected_output" id="expected_output"></td>' +
+                    '<td class="hiddenColumn" id="hidden_' + (index + 1).toString() + '"></td>' +
                     '<td>' + actions + '</td>' +
                     '</tr>';
                 $("table").append(row);
@@ -277,12 +277,13 @@
         var term = new Terminal();
         term.open(document.getElementById('terminal'));
 
-        $('#summernote').summernote({
+        var descriptionBox = $('#summernote').summernote({
             placeholder: 'Enter Your Problem Description Here',
             tabsize: 2,
             height: ($(window).height() * 0.35)
         });
 
+        var socket;
         var editor;
         require.config({
             paths: {
@@ -299,7 +300,144 @@
                 theme: "vs-dark",
                 lineNumbers: "on"
             });
+            socket.emit('professor_start_editing', {
+                userId: parseInt(currentUserId)
+            });
         });
+
+        
+        var problemID;
+        var currentUserId = "{{current_user.id}}";
+        $(document).ready(function () {
+            socket = io.connect('http://' + document.domain + ':' + location.port);
+            socket.on('connect', function () {
+                socket.emit('my event', {
+                    data: 'I\'m connected!'
+                });
+                //socket.emit('professor_start_editing', {
+                //    userId: parseInt(currentUserId)
+                //});
+                console.log("socketio connected");
+            });
+
+            socket.on('problem_result', function (data) {
+                console.log(data);
+                var i;
+                for (i = 0; i < data.length; i++) {
+                    //$("#hidden_" + (i + 1).toString() + "_2").html(data[i].stdout);
+                    $("#hidden_" + (i).toString()).html(data[i].pass_status.toString());
+                    if (data[i].pass_status == true) {
+                        $("#hidden_" + (i).toString()).css("background-color", "green");
+                    } else {
+                        $("#hidden_" + (i).toString()).css("background-color", "red");
+                    }
+                    term.writeln(data[i].stdout);
+                }
+
+            });
+
+            socket.on('new_problem_id', function (data) {
+                console.log(data);
+                problemID = data;
+            });
+
+            socket.on('reload_problem', function (data) {
+                console.log(data);
+                var actions =
+                '<a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a>' +
+                '<a class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>' +
+                '<a class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a> ';
+
+                descriptionBox.summernote('code', data["description"])
+                $('#programTitle').val(data["title"]);
+                editor.setValue(data["file_contents"])
+                //$("#testCaseTable")
+                var i;
+                for (i = 0; i < data["test_cases"].length; i++) { 
+                    var string = '<tr class="testCaseRow"><td class="inputColumn">' + data["test_cases"][i]["input"] + '</td><td class="expectedOutputColumn">' +data["test_cases"][i]["expected_output"] + '</td><td class="hiddenColumn" id="hidden_'+ i.toString()  + '"></td><td><a class="add" title="" data-toggle="tooltip" style="display: none;" data-original-title="Add"><i class="material-icons"></i></a><a class="edit" title="" data-toggle="tooltip" style="display: inline-block;" data-original-title="Edit"><i class="material-icons"></i></a><a class="delete" title="" data-toggle="tooltip" data-original-title="Delete"><i class="material-icons"></i></a> </td></tr>'
+                    $(string).appendTo("#testCaseTable tbody");
+                }
+                
+            });
+
+        });
+
+        $('#generate').on('click', function (e) {
+
+            term.clear();
+            console.log("Sending code to backend");
+
+            var exampleCode = editor.getValue();
+            var re = /(?<=public class\s+).*?(?=\s+{)/mg;
+            var filename = exampleCode.match(re)[0];
+
+            var files = [{filename: filename + ".java", contents: exampleCode}]
+
+            var testCases = []
+
+            $('#testCaseTable .testCaseRow').each(function()
+            {
+                //alert($(this).find(".inputColumn").html());
+                testCases.push({input: $(this).find(".inputColumn").html(), expected_output: $(this).find(".expectedOutputColumn").html()});
+            });
+
+            var problem = {files: files, language:"java", tests: testCases, run_file: filename}
+
+            console.log(problem); 
+
+            socket.emit("new_problem_from_professor", {
+                problem: problem
+            });
+
+        });
+
+        $('#saveProblem').on('click', function (e) {
+            saveProblem();
+        });
+
+        $(document).keydown(function(event) {
+
+            //19 for Mac Command+S
+            if (!( String.fromCharCode(event.which).toLowerCase() == 's' && event.ctrlKey) && !(event.which == 19)) return true;
+        
+            saveProblem();
+        
+            event.preventDefault();
+            return false;
+        });
+
+
+        function saveProblem() {
+            console.log("Saving Problem");
+            var title = $('#programTitle').val();
+            var description = descriptionBox.summernote('code')
+
+            //get the example code
+            var exampleCode = editor.getValue();
+            var re = /(?<=public class\s+).*?(?=\s+{)/mg;
+            var filename = exampleCode.match(re)[0];
+
+            var files = [{filename: filename + ".java", contents: exampleCode}]
+
+            var testCases = []
+
+            $('#testCaseTable .testCaseRow').each(function()
+            {
+                //alert($(this).find(".inputColumn").html());
+                testCases.push({input: $(this).find(".inputColumn").html(), expected_output: $(this).find(".expectedOutputColumn").html()});
+            });
+
+            var problem = {title: title, description: description, files: files, language:"java", run_file: filename, id: problemID, test_cases: testCases}
+
+            console.log(problem); 
+            //
+            socket.emit("professor_save_problem", {
+                problem: problem
+            });
+
+        };
+
+        //var textareaValue = $('#summernote').summernote('code');
     </script>
 
 
