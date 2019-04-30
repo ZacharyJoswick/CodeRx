@@ -5,10 +5,6 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-{% if current_user.Role == (student) %}
-<body>
-<div class="row justify-content-center" id="profile">
-</div>
 <meta charset='utf-8' />
 
     <link href='static/daygrid/main.min.css' rel='stylesheet' />
@@ -30,6 +26,10 @@
       });
 
     </script>
+{% if current_user.has_role("student")%}
+<body>
+<div class="row justify-content-center" id="profile">
+</div>
     <style>
     #calendar{
       text-align: center;
@@ -101,6 +101,51 @@
       </div>
   </body>
 </script>
-{% elif current_user.Role == (professor) %}
+
+
+
+
+{#% elif current_user.Role == (professor) %#}
+{% elif current_user.has_role("professor") %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-4">
+      <h5>Classes</h5>
+      <ul class="list-group"> 
+      {% for case in classes %}
+        <li class="list-group-item" style="background: #757575;"><button onclick= "num_{{case.class_code}}()">{{case.class_name}} {{case.Description}} class code: {{case.class_code}} </button></li>
+        <script>function num_{{case.class_code}}(){
+          var x = document.getElementById("{{case.class_code}}");
+          if (x.style.display === "none") {
+            x.style.display = "block";
+          } else {
+            x.style.display = "none";
+          }
+        }
+        </script>
+        <div id="{{case.class_code}}" style="display:none; height: 400px; overflow: auto;">
+        <table class="table table-dark table-bordered">
+          {% for object in case.problems %}
+            <tr>
+            <th><a href="{{ url_for('homepage') }}">{{object.name}}</a></th>
+            <th>{{object.class}}</th>
+            <th>{{object.due_date}}</th>
+          </tr>
+          <script>
+          var originalDate = new String('{{object.due_date}}');
+          var date = ('20' + originalDate.substring(originalDate.length-2) + '-' + 
+            originalDate.substring(0,originalDate.length-3));
+          var day = parseInt(originalDate.substring(3,originalDate.length-3));
+          var end_date = (date.substring(0,6) + '(day+1)');
+          events.push({title: '{{case.class_name}} {{object.name}} due', start: date, end: end_date});
+          </script>
+          {% endfor %}
+        </table>
+      </div>
+      {% endfor %}
+      </ul>
+    </div>
+    <div id='calendar' class="col-lg-8"></div>
+  </div>
 {% endif %}
 {% endblock %}

@@ -46,7 +46,13 @@ def homepage():
     past_problems = [{"name":"test", "class":"Brennaman Itec 120", "grade":75},
     {"name":"print", "class":"Dr. Chase Itec 220", "grade":100},
     {"name":"recursion", "class":"Dr. Chase Itec 220", "grade":75},]
-    return render_template('homepage.html', title='Homepage', email=current_user.email, name=current_user.name, current_problems=current_problems, past_problems=past_problems)#, problem_list = problem_list)
+    classes = [{"class_name":"Itec 120-01", "class_code":"4rfbsd", "Description":"8am MWF Java 1", "problems" : current_problems},
+    {"class_name":"Itec 120-02", "class_code":"aR4bi3", "Description":"9am MWF Java 1", "problems" : current_problems},
+    {"class_name":"Itec 120-03", "class_code":"ASFgtd", "Description":"10am MWF Java 1", "problems" : current_problems},
+    {"class_name":"Itec 120-04", "class_code":"34tFSV", "Description":"11am TuThr Java 1", "problems" : current_problems},]
+    return render_template('homepage.html', title='Homepage', email=current_user.email, 
+    name=current_user.name, current_problems=current_problems, past_problems=past_problems, 
+    classes=classes)#, problem_list = problem_list)
 
 @app.route('/class_management')
 # @roles_required('admin')
