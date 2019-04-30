@@ -30,7 +30,23 @@ def editor():
 @app.route('/homepage')
 @login_required
 def homepage():
-    return render_template('homepage.html', title='Homepage', email=current_user.email)#, problem_list = problem_list)
+    current_problems = [{"name":"HelloWorld", "class":"Brennaman Itec 120", "due_date":"01-28-19"},
+    {"name":"If", "class":"Brennaman Itec 120", "due_date":"02-05-19"},
+    {"name":"Else", "class":"Brennaman Itec 120", "due_date":"02-10-19"},
+    {"name":"If Else", "class":"Brennaman Itec 120", "due_date":"02-13-19"},
+    {"name":"Money", "class":"Brennaman Itec 120", "due_date":"02-15-19"},
+    {"name":"Minutes", "class":"Brennaman Itec 120", "due_date":"02-31-19"},
+    {"name":"MovieTicket", "class":"Brennaman Itec 120", "due_date":"03-08-19"},
+    {"name":"For", "class":"Brennaman Itec 120", "due_date":"03-15-19"},
+    {"name":"vowelCount", "class":"Brennaman Itec 120", "due_date":"03-19-19"},
+    {"name":"Reserse", "class":"Brennaman Itec 120", "due_date":"04-01-19"},
+    {"name":"Retrieve", "class":"Brennaman Itec 120", "due_date":"04-20-19"},
+    {"name":"Programming Assignment 4", "class":"Itec 324", "due_date":"04-29-19"},
+    {"name":"Iteration 3 Demo", "class":"Itec 370", "due_date":"04-30-19"},]
+    past_problems = [{"name":"test", "class":"Brennaman Itec 120", "grade":75},
+    {"name":"print", "class":"Dr. Chase Itec 220", "grade":100},
+    {"name":"recursion", "class":"Dr. Chase Itec 220", "grade":75},]
+    return render_template('homepage.html', title='Homepage', email=current_user.email, name=current_user.name, current_problems=current_problems, past_problems=past_problems)#, problem_list = problem_list)
 
 @app.route('/class_management')
 # @roles_required('admin')

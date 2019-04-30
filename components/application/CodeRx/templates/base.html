@@ -33,38 +33,46 @@ Welcome to CodeRx
         aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-
+    {%- if request.path == "/editor" %}}
     <div class="collapse navbar-collapse" id="navbarColor03">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
                 <a class="nav-link" href="{{ url_for('homepage') }}">Home <span class="sr-only">(current)</span></a>
             </li>
-            {%- if request.path == "/editor" %}}
-            <button onclick="displayProblems()">Problems
+            <button onclick="displayProblems()">Current Problems
             </button>
-            {% else %}
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('editor') }}">Editor</a>
-            </li>
-            {% endif %}
-            <!--
-            <li class="nav-item">
-              <a class="nav-link" href="#">Pricing</a>
-            </li>
-            --> 
+            
 
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            {%- if request.path == "/editor" %}}
             <button onclick="displayResults()">Results
             </button>
-            {% endif %}
+            
             <li>
                 <a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </li>
         </ul>
             
     </div>
+    {% else %}
+    <div class="collapse navbar-collapse" id="navbarColor03">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="{{ url_for('editor') }}">Editor</a>
+            </li>
+        </ul>
+            <div id="navbarColor03" style="position:absolute;left: 40%;">
+                <h5>Welcome, {% if (name == none) %}{{email}}{% else %}{{name}}{% endif %}
+              </h5>
+            </div>
+        
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
 </nav>
 {% endblock %}
 

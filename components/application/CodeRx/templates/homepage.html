@@ -5,101 +5,122 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-<head>
-<style>
-	#profile{
-		font-family: Comic Sans MS;
-		text-align: center;
-    overflow:fixed;
-	}
-</style>
-<div class="d-flex justify-content-center h-100" id="profile">
-	<h1>Welcome, {{ email }}</h1>
-</div>
-</head>
+
 <body>
 <div class="row justify-content-center" id="profile">
-<table width="90%" border="1">
+{#<table width="90%" border="1">
   <tr>
-  <td width="18%">Recent Submissions</td>
-  <td width="18%"><button onclick="displayCodeRxProblems()">CodeRx Problems</button> </td>
-  <td width="18%">(class name) Problems</td>
-  <td width="18%">Assigned</td>
-  <td width="18%"><button onclick="calendar()">Calendar</button></td>
+  <th width="25%">Recent Submissions</th>
+  <th width="25%"><button onclick="displayCodeRxProblems()" class="btn btn-primary btn-lg btn-block">CodeRx Problems</button> </th>
+  <th width="25%">Assigned</th>
+  <th width="25%"><button onclick="calendar()"class="btn btn-primary btn-lg btn-block">Calendar</button></th>
   </tr>
   <tr>
-  <td>submissions table</td>
-  <td>
-  <div id="CodeRxProblems">
-            <table class="table table-dark table-bordered"> 
+  <th>submissions table</th>
+  <th>
+  
+
+	  </th>
+  <th>example text</th>
+  <th>example text</th>
+  </tr>
+</table>#}
+</div>
+<meta charset='utf-8' />
+
+    <link href='static/daygrid/main.min.css' rel='stylesheet' />
+    <link href='static/daygrid/daygrid.css' rel='stylesheet' />
+
+    <script src='static/daygrid/main.min.js'></script>
+    <script src='static/daygrid/daygrid.js'></script>
+    <script>
+      var events =[{},]
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          plugins: [ 'dayGrid' ],
+          timeZone: 'UTC',
+          defaultView: 'dayGridMonth',
+          events
+        });
+        calendar.render();
+      });
+
+    </script>
+    <style>
+    #calendar{
+      text-align: center;
+      margin-top: 20px;
+    }
+    #scrolltable {text-align: center; margin-top: 20px; height: 50%; overflow: auto;}
+    </style>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-4">
+          <div id="scrolltable">
+            <table class="table table-dark table-bordered" > 
               <thead>
                 <tr>
-                  <th scope="col" width="10%">#</th>
-                  <th scope="col">General Problems</th>
-                  <th scope="col" width="10%">Grade</th>
+                  <th width="40%">Current Problems</th>
+                  <th>Class</th>
+                  <th width="20%">Due Date</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th scope="row">1</th>
-                  <td>HelloWorld</td>
-                  <td style="background-color: red;">N/A</td>
-                </tr>
-                <tr>
-                  <th scope="row">2</th>
-                  <td>Money</td>
-                  <td style="background-color: red;">N/A</td>
-                </tr>
-                <tr>
-                  <th scope="row">3</th>
-                  <td>Minutes</td>
-                  <td style="background-color: red;">N/A</td>
-                </tr>
-                <tr>
-                  <th scope="row">4</th>
-                  <td>Vowel Count</td>
-                  <td style="background-color: red;">N/A</td>
-                </tr>
+                {% for case in current_problems %}
+                  <tr>
+                    <th>
+                      {#<button onclick="{{case}}()" class="btn btn-primary btn-lg btn-block" style="padding: 5px;">{{case.name}}</button>#}
+                      <a href="{{ url_for('homepage') }}">{{case.name}}</a></th>
+                    <th>{{case.class}}</th>
+                    <th>{{case.due_date}}</th>
+                    <script>
+
+                      {# This script populates the calendar based on current_problems 
+                        I wrote this disgusting substring bs and dont remember how it works 5 minutes later
+                        - Jeffrey#}
+
+                      var originalDate = new String('{{case.due_date}}');
+                      var date = ('20' + originalDate.substring(originalDate.length-2) + '-' + 
+                        originalDate.substring(0,originalDate.length-3));
+                      var day = parseInt(originalDate.substring(3,originalDate.length-3));
+                      var end_date = (date.substring(0,6) + '(day+1)');
+                      events.push({title: '{{case.name}} hw due', start: date, end: end_date});
+                    </script>
+                  </tr>
+                {% endfor %}
               </tbody>
             </table>
+          </div>
+          <div id="scrolltable">
+            <table class="table table-dark table-bordered"> 
+              <thead>
+                <tr>
+                  <th width="40%">Past Problems</th>
+                  <th>Class</th>
+                  <th width="20%">Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for case in past_problems %}
+                  <tr>
+                    <th><a href="{{ url_for('homepage') }}">{{case.name}}</a></th>
+                    <th>{{case.class}}</th>
+                    <th>{{case.grade}}</th>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          </div>
+          <div id='calendar' class="col-lg-8"></div>
         </div>
-	  </td>
-  <td>need raj to make this item in database</td>
-  <td>need raj to make this item in database</td>
-  <td>{{ problem_list }}</td>
-  </tr>
-</table>
-</div>
-<meta charset="utf-8" />
-<div id="calendar"></div>
-    <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.print.css" rel="stylesheet" />
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/gcal.js"></script>
-  -->
-<link href="/static/daygrid/main.min.css" rel="stylesheet" />
-<link href="/static/daygrid/daygrid.css" rel="stylesheet" />
-
-<script src="/static/daygrid/main.min.js"></script>
-<script src="/static/daygrid/daygrid.js"></script>
-
-<script>
-
-  document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      plugins: [ 'daygrid' ]
-    });
-
-    calendar.render();
-  });
-
-</script>
+      </div>
+  </body>
 
 <script>function calendar() {
   var x = document.getElementById("calendar");
+  document.getElementById("CodeRxProblems").style.display = "none";
   if (x.style.display === "none") {
     x.style.display = "block";
   } else {
@@ -110,13 +131,6 @@
 
 
 <script>function displayCodeRxProblems() {
-  var x = document.getElementById("CodeRxProblems");
-  if (x.style.display === "none") {
-    x.style.display = "block";
-  } else {
-    x.style.display = "none";
-  }
 }
 </script>
-</body>
 {% endblock %}
