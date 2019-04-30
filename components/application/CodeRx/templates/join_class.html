@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+
+<div class="container ">
+    <div class="row justify-content-center">
+        <h1>Join a class</h1>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="card text-center   text-white bg-primary  mx-auto w-100">
+            <h3 class="card-title">Enter class code to join</h3>
+            <form action="/join_class_code" method="post">
+                <div class="form-group">
+                    <input type="text" name="classJoinCode" class="form-control" id="classJoinCode" placeholder="Join Code">
+                    <small id="joinHelp" class="form-text text-muted">Enter the code provided by your professor</small>
+                </div>
+                <button type="submit" value="submit" class="btn btn-success">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -8,7 +8,9 @@ services:
       dockerfile: ./coderx.Dockerfile
     expose:
      - "5000"
-    environment: 
+    ports:
+     - "5000:5000"
+    environment:
       FLASK_DEBUG: 1
       PASSWORD_SALT: ${PASSWORD_SALT}
       MAIL_USERNAME: ${MAIL_USERNAME}
@@ -19,6 +21,8 @@ services:
       - "./components/application/CodeRx:/code/CodeRx"
     networks:
       - default
+    depends_on:
+      - db
 
   #In memory datastore for high speed access
   redis:
@@ -40,6 +44,24 @@ services:
     networks:
       - default
 
+  etcd:
+    container_name: etcd
+    image: quay.io/coreos/etcd:v3.1.20
+    entrypoint: /usr/local/bin/etcd
+    command:
+        - '--name=etcd'
+        - '--initial-advertise-peer-urls=http://etcd:2380'
+        - '--listen-peer-urls=http://etcd:2380'
+        - '--listen-client-urls=http://etcd:2379,http://localhost:2379'
+        - '--advertise-client-urls=http://etcd:2379'
+        - '--initial-cluster-token=mys3cr3ttok3n'
+        - '--heartbeat-interval=250'
+        - '--election-timeout=1250'
+    ports:
+        - 2379
+    volumes:
+        - etcd:/etcd_data
+
   #Frontend proxy, handles security and access to backend services
   nginx:
     build:
@@ -47,6 +69,8 @@ services:
       dockerfile: ./proxy/nginx.Dockerfile
     depends_on:
         - web
+        - api
+    restart: on-failure
     # image: nginx:alpine
     volumes:
       - ./components/proxy/nginx.conf:/etc/nginx/nginx.conf
@@ -57,6 +81,49 @@ services:
     networks:
       - default
 
+  broker:
+    image: rabbitmq:3-management
+    restart: always
+    environment: 
+      - ETCDCTL_API=3
+    ports:
+      - 5672:5672 # port for the daemon API
+      - 15672:15672 # port for the RabbitMQ management interface
+
+  api:
+    build:
+      context: ./components/RECESS/api
+      dockerfile: ./api.Dockerfile
+    command: python recess_api.py -p 5672 -s broker
+    restart: on-failure
+    expose:
+     - "4520"
+    ports:
+     - "4520:4520"
+    depends_on: 
+      - broker
+
+  manager:
+    build:
+      context: ./components/RECESS/manager
+      dockerfile: ./manager.Dockerfile
+    volumes:
+      - "./components/RECESS/manager:/manager"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: on-failure
+    # command: python manager.py -l ERROR
+    depends_on: 
+      - etcd
+
+  # worker:
+  #   build:
+  #     context: ./components/RECESS/worker/java
+  #     dockerfile: ./java.Dockerfile
+  #   command: ls
+  #   depends_on: 
+  #     - broker
+
 volumes:
   dbdata:
     external: true
+  etcd:

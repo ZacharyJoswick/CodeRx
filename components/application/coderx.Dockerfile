@@ -1,5 +1,9 @@
 FROM python:3.6
 
+RUN apt-get update && apt-get install dumb-init && rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
 #Create code directory
 RUN mkdir -p /code
 

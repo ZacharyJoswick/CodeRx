@@ -1,8 +1,165 @@
+<!DOCTYPE html>
+<link href="../static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-<h1>Student / professor homepage</h1>
+<meta charset='utf-8' />
+
+    <link href='static/daygrid/main.min.css' rel='stylesheet' />
+    <link href='static/daygrid/daygrid.css' rel='stylesheet' />
+
+    <script src='static/daygrid/main.min.js'></script>
+    <script src='static/daygrid/daygrid.js'></script>
+    <script>
+      var events =[{},]
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          plugins: [ 'dayGrid' ],
+          timeZone: 'UTC',
+          defaultView: 'dayGridMonth',
+          events
+        });
+        calendar.render();
+      });
+    </script>
+{% if current_user.has_role("student")%}
+<body>
+<div class="row justify-content-center" id="profile">
+</div>
+    <style>
+    #calendar{
+      text-align: center;
+      margin-top: 20px;
+    }
+    #scrolltable {text-align: center; margin-top: 20px; height: 400px; overflow: auto;}
+    </style>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-4">
+          <div id="scrolltable">
+            <table class="table table-dark table-bordered" > 
+              <thead>
+                <tr>
+                  <th width="35%">Current HW</th>
+                  <th>Class</th>
+                  <th width="25%">Due Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for case in current_problems %}
+                  <tr>
+                    <th>
+                      {#<button onclick="{{case}}()" class="btn btn-primary btn-lg btn-block" style="padding: 5px;">{{case.name}}</button>#}
+                      <a href="{{ url_for('homepage') }}">{{case.name}}</a></th>
+                    <th>{{case.class}}</th>
+                    <th>{{case.due_date}}</th>
+                    <script>
+                      {# This script populates the calendar based on current_problems 
+                        I wrote this disgusting substring bs and dont remember how it works 5 minutes later
+                        - Jeffrey#}
+                      var originalDate = new String('{{case.due_date}}');
+                      var date = ('20' + originalDate.substring(originalDate.length-2) + '-' + 
+                        originalDate.substring(0,originalDate.length-3));
+                      var day = parseInt(originalDate.substring(3,originalDate.length-3));
+                      var end_date = (date.substring(0,6) + '(day+1)');
+                      events.push({title: '{{case.name}} hw due', start: date, end: end_date});
+                    </script>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div id="scrolltable">
+            <table class="table table-dark table-bordered"> 
+              <thead>
+                <tr>
+                  <th width="40%">Past Problems</th>
+                  <th>Class</th>
+                  <th width="20%">Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for case in past_problems %}
+                  <tr>
+                    <th><a href="{{ url_for('homepage') }}">{{case.name}}</a></th>
+                    <th>{{case.class}}</th>
+                    <th>{{case.grade}}</th>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          </div>
+          <div id='calendar' class="col-lg-8"></div>
+        </div>
+      </div>
+  </body>
+</script>
 
 
+
+
+{#% elif current_user.Role == (professor) %#}
+{% elif current_user.has_role("professor") %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-4">
+      <h5>Classes</h5>
+      <ul class="list-group"> 
+      {% for case in classes %}
+        <li class="list-group-item" style="background: #757575;"><button onclick= "num_{{case.class_code}}()">{{case.class_name}} {{case.Description}} class code: {{case.class_code}} </button></li>
+        <script>function num_{{case.class_code}}(){
+          var x = document.getElementById("{{case.class_code}}");
+          if (x.style.display === "none") {
+            x.style.display = "block";
+          } else {
+            x.style.display = "none";
+          }
+        }
+        </script>
+        <div id="{{case.class_code}}" style="display:none; height: 400px; overflow: auto;">
+        <table class="table table-dark table-bordered">
+          {% for object in case.problems %}
+            <tr>
+            <th width="45%"><button onclick= "num_{{object.id}}()">View {{object.name}} Submissions</button></th>
+            <th>{{object.class}}</th>
+            <th width="25%">{{object.due_date}}</th>
+            </tr>
+            <script>function num_{{object.id}}(){
+              var a = document.getElementById("k_{{object.id}}");
+              if (a.style.display === "none") {
+                a.style.display = "block";
+              } else {
+                a.style.display = "none";
+              }
+            }
+            </script>
+            <div id="k_{{object.id}}" style="display:none;">
+              {% for inti in object.submissions %}
+                <ul class="list-group"> 
+                  <li class="list-group-item">{{inti.user_id}} Submitted: {{inti.submission_date}} Grade: {{inti.grade}}</li>
+                </ul>
+              {% endfor %}
+            </div>
+            <script>
+            var originalDate = new String('{{object.due_date}}');
+            var date = ('20' + originalDate.substring(originalDate.length-2) + '-' + 
+              originalDate.substring(0,originalDate.length-3));
+            var day = parseInt(originalDate.substring(3,originalDate.length-3));
+            var end_date = (date.substring(0,6) + '(day+1)');
+            events.push({title: '{{case.class_name}} {{object.name}} due', start: date, end: end_date});
+            </script>
+          {% endfor %}
+        </table>
+      </div>
+      {% endfor %}
+      </ul>
+    </div>
+    <div id='calendar' class="col-lg-8"></div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}

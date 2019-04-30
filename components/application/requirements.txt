@@ -9,3 +9,4 @@ bcrypt
 eventlet
 redis
 gunicorn
+requests

@@ -1,0 +1,12 @@
+{
+    "files": [{
+        "filename": "HelloWorld.java",
+        "contents": "import java.util.Scanner; \npublic class HelloWorld { \n\n    public static void main(String[] args) { \n\tScanner in = new Scanner(System.in);\n String s = in .nextLine();\n System.out.println(s);\n }\n\n}"
+    }],
+    "language ": "java ",
+    "run_file ": "HelloWorld ",
+    "callback_address ": "http: //web:5000/job_complete",
+    "compile_timeout": 5,
+    "run_timeout": 5,
+    "other": {}
+}

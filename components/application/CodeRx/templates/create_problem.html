@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote-bs4.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote-bs4.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='node_modules/xterm/dist/xterm.css')}}" />
+<script src="{{ url_for('static', filename='node_modules/xterm/dist/xterm.js')}}"></script>
+<script src="{{ url_for('static', filename='node_modules/monaco-editor/min/vs/loader.js')}}"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+<style type="text/css">
+    .table-wrapper {
+        width: 700px;
+        margin: 30px auto;
+
+        padding: 10px;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    }
+
+    .table-title {
+        padding-bottom: 0px;
+        margin: 0 0 0px;
+    }
+
+    .table-title h2 {
+        margin: 0px 0 0;
+        font-size: 22px;
+    }
+
+    .table-title .add-new {
+        float: right;
+        height: 30px;
+        font-weight: bold;
+        font-size: 12px;
+        text-shadow: none;
+        min-width: 100px;
+        border-radius: 50px;
+        line-height: 13px;
+    }
+
+    .table-title .add-new i {
+        margin-right: 0px;
+    }
+
+    table.table {
+        table-layout: fixed;
+    }
+
+    table.table tr th,
+    table.table tr td {
+        border-color: #e9e9e9;
+    }
+
+    table.table th i {
+        font-size: 13px;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+
+    table.table th:last-child {
+        width: 100px;
+    }
+
+    table.table td a {
+        cursor: pointer;
+        display: inline-block;
+        margin: 0 5px;
+        min-width: 24px;
+    }
+
+    table.table td a.add {
+        color: #27C46B;
+    }
+
+    table.table td a.edit {
+        color: #FFC107;
+    }
+
+    table.table td a.delete {
+        color: #E34724;
+    }
+
+    table.table td i {
+        font-size: 19px;
+    }
+
+    table.table td a.add i {
+        font-size: 24px;
+        margin-right: -1px;
+        position: relative;
+        top: 3px;
+    }
+
+    table.table .form-control {
+        height: 32px;
+        line-height: 32px;
+        box-shadow: none;
+        border-radius: 2px;
+    }
+
+    table.table .form-control.error {
+        border-color: #f50000;
+    }
+
+    table.table td .add {
+        display: none;
+    }
+
+    td {
+        color: #ffffff;
+    }
+
+    th {
+        color: #ffffff;
+    }
+
+    .table-header-custom {
+        color: #ffffff;
+    }
+</style>
+
+<div class="container-fluid">
+    <!--<div class="row justify-content-center">
+        <h2>Create New Problem</h2>
+    </div>-->
+
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <h4 class="text-center">Example Solution</h4>
+            <div id="container" style="width:48vw;height:55vh;border:1px solid grey"></div>
+        </div>
+        <div class="col-6">
+            <h3 class="text-center">Program title</h3>
+            <div class="input-group input-group-lg">
+                <input type="text" class="form-control" id="programTitle" aria-label="Large" aria-describedby="inputGroup-sizing-sm">
+            </div>
+            <h4 class="text-center pt-3">Problem Description</h4>
+            <div id="summernote"></div>
+        </div>
+
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <h4 class="text-center">Run Output</h4>
+            <div id="terminal"></div>
+        </div>
+        <div class="col-6">
+            <div class="row justify-content-center h-100">
+                <div class="col-8">
+                    <div class="table-title mx-0 px-0 pb-0">
+                        <div class="row  no-gutters justify-content-center mx-0">
+                            <div class="col text-center px-0">
+                                <h4 class="table-header-custom">Test Cases</h4>
+                            </div>
+                            <div class="col pt-2">
+                                <button type="button" class="btn btn-block btn-info add-new"><i class="fa fa-plus"></i>
+                                    Add New</button>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table table-bordered pt-0" id="testCaseTable">
+                        <thead>
+                            <tr>
+                                <th>Input</th>
+                                <th>Expected Output</th>
+                                <th>Pass State</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col">
+                    <h4 class="text-center">Controls</h4>
+                    <div class="row pt-2">
+                        <button type="button" id="generate" class="btn btn-block btn-primary">Test Problem</button>
+                    </div>
+                    <div class="row pt-2">
+                        <button type="button" id="saveProblem" class="btn btn-block btn-success">Save Problem</button>
+                    </div>
+                    <div class="row pt-2">
+                        <button type="button" class="btn btn-block btn-danger">Delete Problem</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #terminal {
+            overflow: hidden;
+            width: 48vw;
+            height: 25vh;
+            /* <- fixed height */
+            font-size: 16px;
+            line-height: 17px;
+            /* <- initial line-height */
+        }
+    </style>
+    <script>
+        // Warning before leaving the page (back button, or outgoinglink)
+        window.onbeforeunload = function () {
+            return true;
+        };
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+            //var actions = $("table td:last-child").html();
+            var actions =
+                '<a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a>' +
+                '<a class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>' +
+                '<a class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a> ';
+            // Append table with add row form on add new button click
+            $(".add-new").click(function () {
+                $(this).attr("disabled", "disabled");
+                var index = $("table tbody tr:last-child").index();
+                var row = '<tr class="testCaseRow">' +
+                    '<td class="inputColumn"><input type="text" class="form-control" name="input" id="input"></td>' +
+                    '<td class="expectedOutputColumn"><input type="text" class="form-control" name="expected_output" id="expected_output"></td>' +
+                    '<td class="hiddenColumn" id="hidden_' + (index + 1).toString() + '"></td>' +
+                    '<td>' + actions + '</td>' +
+                    '</tr>';
+                $("table").append(row);
+                $("table tbody tr").eq(index + 1).find(".add, .edit").toggle();
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+            // Add row on add button click
+            $(document).on("click", ".add", function () {
+                var empty = false;
+                var input = $(this).parents("tr").find('input[type="text"]');
+                input.each(function () {
+                    if (!$(this).val()) {
+                        $(this).addClass("error");
+                        empty = true;
+                    } else {
+                        $(this).removeClass("error");
+                    }
+                });
+                $(this).parents("tr").find(".error").first().focus();
+                if (!empty) {
+                    input.each(function () {
+                        $(this).parent("td").html($(this).val());
+                    });
+                    $(this).parents("tr").find(".add, .edit").toggle();
+                    $(".add-new").removeAttr("disabled");
+                }
+            });
+            // Edit row on edit button click
+            $(document).on("click", ".edit", function () {
+                $(this).parents("tr").find("td:not(:last-child)").each(function () {
+                    $(this).html('<input type="text" class="form-control" value="' + $(this)
+                        .text() + '">');
+                });
+                $(this).parents("tr").find(".add, .edit").toggle();
+                $(".add-new").attr("disabled", "disabled");
+            });
+            // Delete row on delete button click
+            $(document).on("click", ".delete", function () {
+                $(this).parents("tr").remove();
+                $(".add-new").removeAttr("disabled");
+            });
+        });
+    </script>
+
+    <script>
+        var term = new Terminal();
+        term.open(document.getElementById('terminal'));
+
+        var descriptionBox = $('#summernote').summernote({
+            placeholder: 'Enter Your Problem Description Here',
+            tabsize: 2,
+            height: ($(window).height() * 0.35)
+        });
+
+        var socket;
+        var editor;
+        require.config({
+            paths: {
+                'vs': "{{ url_for('static', filename='node_modules/monaco-editor/min/vs')}}"
+            }
+        });
+
+        require(['vs/editor/editor.main'], function () {
+            console.log("loading");
+            editor = monaco.editor.create(document.getElementById("container"), {
+                value: "import java.util.Scanner; \npublic class HelloWorld { \n\n    public static void main(String[] args) { \n\t    Scanner in = new Scanner(System.in); \n        String s = in.nextLine(); \n        System.out.println(s); \n    }\n\n}",
+                language: "java",
+                readOnly: false,
+                theme: "vs-dark",
+                lineNumbers: "on"
+            });
+            socket.emit('professor_start_editing', {
+                userId: parseInt(currentUserId)
+            });
+        });
+
+        
+        var problemID;
+        var currentUserId = "{{current_user.id}}";
+        $(document).ready(function () {
+            socket = io.connect('http://' + document.domain + ':' + location.port);
+            socket.on('connect', function () {
+                socket.emit('my event', {
+                    data: 'I\'m connected!'
+                });
+                //socket.emit('professor_start_editing', {
+                //    userId: parseInt(currentUserId)
+                //});
+                console.log("socketio connected");
+            });
+
+            socket.on('problem_result', function (data) {
+                console.log(data);
+                var i;
+                for (i = 0; i < data.length; i++) {
+                    //$("#hidden_" + (i + 1).toString() + "_2").html(data[i].stdout);
+                    $("#hidden_" + (i).toString()).html(data[i].pass_status.toString());
+                    if (data[i].pass_status == true) {
+                        $("#hidden_" + (i).toString()).css("background-color", "green");
+                    } else {
+                        $("#hidden_" + (i).toString()).css("background-color", "red");
+                    }
+                    term.writeln(data[i].stdout);
+                }
+
+            });
+
+            socket.on('new_problem_id', function (data) {
+                console.log(data);
+                problemID = data;
+            });
+
+            socket.on('reload_problem', function (data) {
+                console.log(data);
+                var actions =
+                '<a class="add" title="Add" data-toggle="tooltip"><i class="material-icons">&#xE03B;</i></a>' +
+                '<a class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>' +
+                '<a class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a> ';
+
+                descriptionBox.summernote('code', data["description"])
+                $('#programTitle').val(data["title"]);
+                editor.setValue(data["file_contents"])
+                //$("#testCaseTable")
+                var i;
+                for (i = 0; i < data["test_cases"].length; i++) { 
+                    var string = '<tr class="testCaseRow"><td class="inputColumn">' + data["test_cases"][i]["input"] + '</td><td class="expectedOutputColumn">' +data["test_cases"][i]["expected_output"] + '</td><td class="hiddenColumn" id="hidden_'+ i.toString()  + '"></td><td><a class="add" title="" data-toggle="tooltip" style="display: none;" data-original-title="Add"><i class="material-icons"></i></a><a class="edit" title="" data-toggle="tooltip" style="display: inline-block;" data-original-title="Edit"><i class="material-icons"></i></a><a class="delete" title="" data-toggle="tooltip" data-original-title="Delete"><i class="material-icons"></i></a> </td></tr>'
+                    $(string).appendTo("#testCaseTable tbody");
+                }
+                
+            });
+
+        });
+
+        $('#generate').on('click', function (e) {
+
+            term.clear();
+            console.log("Sending code to backend");
+
+            var exampleCode = editor.getValue();
+            var re = /(?<=public class\s+).*?(?=\s+{)/mg;
+            var filename = exampleCode.match(re)[0];
+
+            var files = [{filename: filename + ".java", contents: exampleCode}]
+
+            var testCases = []
+
+            $('#testCaseTable .testCaseRow').each(function()
+            {
+                //alert($(this).find(".inputColumn").html());
+                testCases.push({input: $(this).find(".inputColumn").html(), expected_output: $(this).find(".expectedOutputColumn").html()});
+            });
+
+            var problem = {files: files, language:"java", tests: testCases, run_file: filename}
+
+            console.log(problem); 
+
+            socket.emit("new_problem_from_professor", {
+                problem: problem
+            });
+
+        });
+
+        $('#saveProblem').on('click', function (e) {
+            saveProblem();
+        });
+
+        $(document).keydown(function(event) {
+
+            //19 for Mac Command+S
+            if (!( String.fromCharCode(event.which).toLowerCase() == 's' && event.ctrlKey) && !(event.which == 19)) return true;
+        
+            saveProblem();
+        
+            event.preventDefault();
+            return false;
+        });
+
+
+        function saveProblem() {
+            console.log("Saving Problem");
+            var title = $('#programTitle').val();
+            var description = descriptionBox.summernote('code')
+
+            //get the example code
+            var exampleCode = editor.getValue();
+            var re = /(?<=public class\s+).*?(?=\s+{)/mg;
+            var filename = exampleCode.match(re)[0];
+
+            var files = [{filename: filename + ".java", contents: exampleCode}]
+
+            var testCases = []
+
+            $('#testCaseTable .testCaseRow').each(function()
+            {
+                //alert($(this).find(".inputColumn").html());
+                testCases.push({input: $(this).find(".inputColumn").html(), expected_output: $(this).find(".expectedOutputColumn").html()});
+            });
+
+            var problem = {title: title, description: description, files: files, language:"java", run_file: filename, id: problemID, test_cases: testCases}
+
+            console.log(problem); 
+            //
+            socket.emit("professor_save_problem", {
+                problem: problem
+            });
+
+        };
+
+        //var textareaValue = $('#summernote').summernote('code');
+    </script>
+
+
+    {% endblock %}
