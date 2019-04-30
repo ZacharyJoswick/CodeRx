@@ -5,26 +5,9 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-
+{% if current_user.Role == (student) %}
 <body>
 <div class="row justify-content-center" id="profile">
-{#<table width="90%" border="1">
-  <tr>
-  <th width="25%">Recent Submissions</th>
-  <th width="25%"><button onclick="displayCodeRxProblems()" class="btn btn-primary btn-lg btn-block">CodeRx Problems</button> </th>
-  <th width="25%">Assigned</th>
-  <th width="25%"><button onclick="calendar()"class="btn btn-primary btn-lg btn-block">Calendar</button></th>
-  </tr>
-  <tr>
-  <th>submissions table</th>
-  <th>
-  
-
-	  </th>
-  <th>example text</th>
-  <th>example text</th>
-  </tr>
-</table>#}
 </div>
 <meta charset='utf-8' />
 
@@ -52,7 +35,7 @@
       text-align: center;
       margin-top: 20px;
     }
-    #scrolltable {text-align: center; margin-top: 20px; height: 50%; overflow: auto;}
+    #scrolltable {text-align: center; margin-top: 20px; height: 400px; overflow: auto;}
     </style>
     <div class="container-fluid">
       <div class="row">
@@ -61,9 +44,9 @@
             <table class="table table-dark table-bordered" > 
               <thead>
                 <tr>
-                  <th width="40%">Current Problems</th>
+                  <th width="35%">Current HW</th>
                   <th>Class</th>
-                  <th width="20%">Due Date</th>
+                  <th width="25%">Due Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -117,20 +100,7 @@
         </div>
       </div>
   </body>
-
-<script>function calendar() {
-  var x = document.getElementById("calendar");
-  document.getElementById("CodeRxProblems").style.display = "none";
-  if (x.style.display === "none") {
-    x.style.display = "block";
-  } else {
-    x.style.display = "none";
-  }
-}
 </script>
-
-
-<script>function displayCodeRxProblems() {
-}
-</script>
+{% elif current_user.Role == (professor) %}
+{% endif %}
 {% endblock %}
