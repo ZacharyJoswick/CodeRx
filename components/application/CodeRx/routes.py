@@ -4,7 +4,7 @@ import json
 import requests
 
 import redis
-from flask import url_for, send_from_directory, render_template, redirect, request, make_response, jsonify
+from flask import url_for, send_from_directory, render_template, redirect, request, make_response, jsonify, flash
 from flask_security import login_required, current_user, roles_required
 from flask_socketio import emit, send
 from CodeRx import app, socketio
@@ -55,6 +55,47 @@ def create_new_problem():
 def editor():
     return render_template('editor.html', title='Editor')
 
+@app.route('/join_class')
+@login_required
+def join_class():
+    return render_template('join_class.html', title='Join Class')
+
+@app.route('/join_class_code', methods=['POST'])
+@login_required
+def join_class_code():
+    code = request.form.get("classJoinCode")
+    app.logger.info(f"User: {current_user.email} attempted to join class with code: {code}")
+    the_class = Class.query.filter_by(join_code=code).first()
+    if the_class is not None:
+        current_user.classes.append(the_class)
+        flash('You have successfully joined the class')
+    else:
+        flash('Error, Invalid code')
+    
+    return render_template('join_class.html', title='Join Class')
+
+@app.route('/create_professor', methods=['POST'])
+@login_required
+@roles_required('admin')
+def create_professor():
+    name = request.form.get("name")
+    email = request.form.get("email")
+    
+    professor_role = Role.query.filter_by(name="professor").first()
+    student_role = Role.query.filter_by(name="student").first()
+
+    new_user = User(name=name, email=email)
+    if student_role in new_user.roles:
+        new_user.roles.remove(student_role)
+    new_user.roles.append(professor_role)
+
+    db.session.add(new_user)
+    db.session.commit()
+    
+    flash('Professor Successfully Created')
+    
+    return redirect("/admin", 200)
+
 @app.route('/homepage')
 @login_required
 def homepage():
@@ -88,7 +129,19 @@ def class_management():
 @login_required
 @roles_required('admin')
 def admin():
-    return render_template('admin_page.html', title='Administrator Tools')
+    student_role = Role.query.filter_by(name="student").first()
+    students = User.query.filter(User.roles.any(Role.id.in_([student_role.id]))).all()
+    ret_students = []
+    for student in students:
+        ret_students.append({"name":student.name, "email": student.email})
+
+    professor_role = Role.query.filter_by(name="professor").first()
+    professors = User.query.filter(User.roles.any(Role.id.in_([professor_role.id]))).all()
+    ret_professors = []
+    for professor in professors:
+        ret_professors.append({"name":professor.name, "email": professor.email})
+    app.logger.info(f"Found professors: {ret_professors}")
+    return render_template('admin_page.html', title='Administrator Tools', students=ret_students, professors=ret_professors)
 
 @app.route('/profile')
 @login_required
