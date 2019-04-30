@@ -62,7 +62,7 @@ Welcome to CodeRx
             </li>
         </ul>
             <div id="navbarColor03" style="position:absolute;left: 40%;">
-                <h5>Welcome,{{current_user.Role == (professor)}}{% if (name == none) %}{{email}}{% else %}{{name}}{% endif %}
+                <h5>Welcome,{% if (name == none) %}{{email}}{% else %}{{name}}{% endif %}
               </h5>
             </div>
         
