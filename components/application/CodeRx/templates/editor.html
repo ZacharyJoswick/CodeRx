@@ -45,16 +45,16 @@
                                 <th scope="col">Expected</th>
                                 <th scope="col">Run</th>
                                 <th scope="col">Result</th>
-                                <th scope="col"></th>
                             </tr>
                         </thead>
                         
                         <tbody>
                             {% for case in TestCases %}
                             <tr>
-                                <th>scope = "row"> {{loop.index}}</th>
+                                <th scope = "row"> {{loop.index}}</th>
                                 <td id = "results_{{loop.index}}_1">{{case.input}}</td>
-
+                                <td id = "results_{{loop.index}}_2"></td>
+                                <td id = "results_{{loop.index}}_3"></td>
                             {% endfor %}
 
 
@@ -89,15 +89,14 @@
                             #}
                         </tbody>
                     </table>
-                    <h3>Program output</h3>
-                    <div id="terminal"></div>
                 </div>
             </div>
             </div>
         </div>
     </div>
 </div>
-
+<h3>Program output</h3>
+<div id="terminal"></div>
 <script>function displayResults() {
   var x = document.getElementById("displayResults");
   if (x.style.display === "none") {
@@ -168,8 +167,6 @@
     });
 </script>
 
-
-
 <script type="text/javascript" charset="utf-8">
     var term = new Terminal();
     term.open(document.getElementById('terminal'));
@@ -186,7 +183,14 @@
         socket.on('problem_result', function(data) {
             console.log(data);
             var i;
-            for (i = 0; i < data.length; i++) { 
+            for (i = 0; i < data.length; i++) {
+                $("#results_"+ (i+1).toString() + "_2").html(data[i].stdout);
+                $("#results_"+ (i+1).toString() + "_3").html(data[i].pass_status.toString());
+                if(data[i].pass_status == true){
+                    $("#results_"+ (i+1).toString() + "_3").css("background-color", "green");
+                }else{
+                    $("#results_"+ (i+1).toString() + "_3").css("background-color", "red");
+                }
                 term.writeln(data[i].stdout);
             }
             
@@ -195,7 +199,7 @@
     });
 
     $('#generate').on('click', function (e) {
-
+        displayResults();
         console.log("Sending code to backend");
         //socket.emit("new_problem_from_user", {data: cstr_encode(editor.getValue())})
         socket.emit("new_problem_from_user", {data: editor.getValue()});
