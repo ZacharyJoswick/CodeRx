@@ -1,12 +1,16 @@
-{% extends "base.html" %}
-{% import 'bootstrap/wtf.html' as wtf %}
+{% extends 'bootstrap/base.html' %}
 
-{% block app_content %}
-<h1>Student / professor profile page</h1>
-        <div class="input-group form-group justify-content-center", style="font-size:20px">
-                    		{{ wtf.form_field(forgot_password_form.email,  class="form-control input-lg", placeholder="email", style="font-size:16px") }}
-  		</div>
-  		<div class="sidenav">
+{%block scripts%}
+{{super()}}
+    <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+{% endblock %}
+{% block problems %}
+<div class="sidenav">
   <div class="row">
       <div class="col-lg">
           <table class="table table-dark table-bordered">
@@ -43,6 +47,4 @@
       </div>
   </div>
 </div>
-
 {% endblock %}
-

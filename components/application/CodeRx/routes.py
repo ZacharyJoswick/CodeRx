@@ -53,7 +53,8 @@ def create_new_problem():
 @app.route('/editor')
 @login_required
 def editor():
-    return render_template('editor.html', title='Editor')
+    testCase = [{"input":"testvalue1"},{"input":"testvalue2"},{"input":"testvalue3"},{"input":"testvalue4"}]
+    return render_template('editor.html', title='Editor', TestCases = testCase)
 
 @app.route('/join_class')
 @login_required

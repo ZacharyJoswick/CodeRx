@@ -7,6 +7,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'postgresql://postgres:CodeRxYourDailyDoseOfCode@db/postgres'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
 
     #Flask security config
     SECURITY_REGISTERABLE = True
@@ -20,7 +21,7 @@ class Config(object):
     SECURITY_CONFIRM_ERROR_VIEW = "/confirm"
     SECURITY_POST_CONFIRM_VIEW = "/homepage"
     SECURITY_UNAUTHORIZED_VIEW = "/403"
-    SECURITY_POST_REGISTER_VIEW = "/login "
+    SECURITY_POST_REGISTER_VIEW= "/login"
 
     SECURITY_EMAIL_SENDER = 'admin@coderx.io'
     MAIL_SERVER = 'mail.privateemail.com'
